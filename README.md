@@ -58,8 +58,8 @@ npm test
 
 ## Versions
 
-- **Main site (`index.html`):** the original LogHunt look, with the same tabs and screens.
-- **Preview (`preview/index.html`):** the full version with ATT&CK tags, the log explorer, hints, classroom codes and endless practice.
+- **Main site (`index.html`):** the redesigned LogHunt with Today, Practice, Friends and Progress. It has the theory step, the log explorer, hints, the streak tracker, classroom codes and endless practice.
+- **Preview (`preview/index.html`):** the earlier full version, kept for comparison.
 
 ## Live site
 

@@ -236,11 +236,11 @@ test('the main page can be installed and works offline', async ({ page, request 
   }, null, { timeout: 15000 });
 });
 
-// The main page keeps the original look. These tests stop it drifting again.
-test('the main page keeps the original six tabs and no classroom tab', async ({ page }) => {
+// The main page: the four-tab design from the mockups.
+test('the main page shows four tabs and the daily challenge', async ({ page }) => {
   await page.goto('/index.html');
-  await expect(page.locator('nav button')).toHaveText(['Today', 'Practice', 'Friends', 'Team', 'Progress', 'Notes']);
-  await expect(page.locator('button.primary').first()).toHaveText("Start today's challenge");
+  await expect(page.locator('nav button')).toHaveText(['Today', 'Practice', 'Friends', 'Progress']);
+  await expect(page.locator('button.primary').first()).toContainText("Start today's challenge");
 });
 
 test('the main page answer flow still works', async ({ page }) => {
@@ -249,6 +249,90 @@ test('the main page answer flow still works', async ({ page }) => {
   await page.locator('.line').nth(0).click();
   await page.click('button[data-action="submit"]');
   await expect(page.locator('.result')).toBeVisible();
+});
+
+test('a correct theory adds the theory bonus to the points', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.click('nav [data-view="practice"]');
+  await page.locator('.case-item').first().click();
+  await page.click('[data-theory="Password guessing"]');
+  await page.locator('.line').nth(6).click();
+  await page.click('button[data-action="submit"]');
+  await expect(page.getByText('You earned 110 points.')).toBeVisible();
+  const state = await readState(page);
+  expect(state.points['1']).toBe(100);
+  expect(state.theoryBonus['1']).toBe(true);
+});
+
+test('a hint costs 10 points', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.click('nav [data-view="practice"]');
+  await page.locator('.case-item').first().click();
+  await page.click('button[data-action="hint"]');
+  await page.locator('.line').nth(6).click();
+  await page.click('button[data-action="submit"]');
+  const state = await readState(page);
+  expect(state.points['1']).toBe(90);
+});
+
+test('the event categories and search narrow the log', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.click('nav [data-view="practice"]');
+  await page.locator('.case-item').first().click();
+  await page.click('button[data-cat="Logons"]');
+  await expect(page.locator('#log-box .line')).toHaveCount(8);
+  await page.click('button[data-cat="Other"]');
+  await expect(page.locator('#log-box .line')).toHaveCount(1);
+  await page.click('button[data-cat="All"]');
+  await page.fill('[data-lab-search]', 'h.ross');
+  await expect(page.locator('#log-box .line')).toHaveCount(2);
+});
+
+test('the timer starts when a case opens', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.click('button.primary');
+  await page.waitForTimeout(1200);
+  await expect(page.locator('#timer')).not.toHaveText('00:00');
+});
+
+test('practice filters narrow the list, and a random case can be generated', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.click('nav [data-view="practice"]');
+  await page.selectOption('select[data-filter="severity"]', 'Critical');
+  await expect(page.locator('.case-item')).toHaveCount(2);
+  await page.click('button[data-action="new-random"]');
+  await expect(page.locator('.eyebrow').first()).toContainText('RANDOM CASE');
+});
+
+test('a classroom code can be created and a bad code is refused on the Friends page', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.click('nav [data-view="friends"]');
+  await page.fill('[data-teacher-name]', 'Week 1');
+  await page.check('[data-pick-case="1"]');
+  await page.click('button[data-action="create-code"]');
+  await expect(page.locator('[data-created-code]')).not.toHaveValue('');
+  await page.fill('[data-join-code]', 'nonsense!!');
+  await page.click('button[data-action="join-code"]');
+  await expect(page.getByText('That code is not valid')).toBeVisible();
+});
+
+test('notes can be searched, and reset asks before it clears', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.click('nav [data-view="practice"]');
+  await page.locator('.case-item').first().click();
+  await page.fill('textarea', 'Password spraying from one IP.');
+  await page.click('nav [data-view="progress"]');
+  await expect(page.locator('.note')).toHaveCount(1);
+  await page.fill('[data-note-search]', 'nothing like this');
+  await expect(page.locator('.note')).toHaveCount(0);
+  await page.fill('[data-note-search]', '');
+  page.once('dialog', d => d.dismiss());
+  await page.click('button[data-action="reset"]');
+  await expect(page.locator('.note')).toHaveCount(1);
+  page.once('dialog', d => d.accept());
+  await page.click('button[data-action="reset"]');
+  await expect(page.getByText('Progress reset.')).toBeVisible();
+  await expect(page.locator('.note')).toHaveCount(0);
 });
 
 test('the main page blocks outbound requests', async ({ page }) => {
@@ -265,7 +349,9 @@ test('the main page blocks outbound requests', async ({ page }) => {
 });
 
 test('the main page fits a phone screen', async ({ page }) => {
-  await page.setViewportSize({ width: 375, height: 800 });
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/index.html');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  const tops = await page.locator('nav button').evaluateAll(els => new Set(els.map(e => Math.round(e.getBoundingClientRect().top))).size);
+  expect(tops).toBe(1);
 });
