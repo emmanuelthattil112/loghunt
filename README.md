@@ -56,6 +56,11 @@ npx playwright install chromium
 npm test
 ```
 
+## Versions
+
+- **Main site (`index.html`):** the original LogHunt look, with the same tabs and screens.
+- **Preview (`preview/index.html`):** the full version with ATT&CK tags, the log explorer, hints, classroom codes and endless practice.
+
 ## Live site
 
 Coming soon. This line will be replaced with the GitHub Pages address.

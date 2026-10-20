@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; img-src 'self'; font-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<meta name="theme-color" content="#0b1017">
-<meta name="description" content="A daily cybersecurity puzzle. Read simulated Windows-style logs and find the line that shows the attack.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0b1017">
 <title>LogHunt</title>
+<meta name="description" content="A daily cybersecurity puzzle. Read simulated Windows-style logs and find the line that shows the attack.">
 <style>
 :root {
   --bg: #0b1017;
@@ -80,7 +80,6 @@ p { margin: 8px 0; }
 .small { font-size: 13px; }
 .eyebrow { color: var(--accent); font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; margin: 0; }
 .foot { max-width: 880px; margin: 0 auto; padding: 0 16px 32px; color: var(--muted); font-size: 13px; }
-.flash { color: var(--good); font-weight: 600; margin: 0 0 12px; }
 
 .btn {
   background: var(--panel-2);
@@ -94,10 +93,8 @@ p { margin: 8px 0; }
 }
 .btn:hover:not(:disabled) { border-color: var(--accent); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: #06101a; }
-.btn.small { padding: 6px 12px; font-size: 14px; }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .link { background: none; border: none; color: var(--accent); cursor: pointer; padding: 0; font: inherit; }
-a { color: var(--accent); }
 .actions { margin: 14px 0 4px; display: flex; gap: 10px; flex-wrap: wrap; }
 
 .stats-row { display: flex; gap: 28px; margin: 18px 0; flex-wrap: wrap; }
@@ -113,38 +110,10 @@ a { color: var(--accent); }
 }
 .chip.sev-High { color: var(--warn); border-color: var(--warn); }
 .chip.sev-Critical { color: var(--bad); border-color: var(--bad); }
-.tag {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: 6px;
-  padding: 1px 7px;
-}
 
 .result { padding: 12px 14px; border-radius: 10px; margin: 14px 0; border: 1px solid; }
 .result.good { border-color: var(--good); background: rgba(61, 220, 151, 0.08); }
 .result.bad { border-color: var(--bad); background: rgba(255, 107, 107, 0.08); }
-.hint {
-  border-left: 3px solid var(--warn);
-  background: rgba(245, 185, 66, 0.08);
-  padding: 8px 12px;
-  border-radius: 6px;
-}
-
-.lab { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 14px; }
-.text-input, .lab input, textarea, select {
-  background: #080c12;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 10px;
-  font: inherit;
-}
-.lab input[type="search"] { flex: 1 1 180px; min-width: 0; }
-.text-input { width: 100%; }
-textarea { width: 100%; min-height: 110px; border-radius: 10px; padding: 10px; resize: vertical; }
-select { background: var(--panel-2); }
 
 .log {
   font-family: var(--mono);
@@ -153,7 +122,7 @@ select { background: var(--panel-2); }
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 8px;
-  margin: 12px 0;
+  margin: 14px 0;
 }
 .line {
   display: flex;
@@ -177,31 +146,31 @@ select { background: var(--panel-2); }
 .ln { color: var(--muted); min-width: 22px; user-select: none; text-align: right; }
 .txt { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
 
-.timeline { border-bottom: 1px solid var(--border); margin-bottom: 8px; padding-bottom: 8px; }
-.tl-row {
-  display: grid;
-  grid-template-columns: 56px 1fr 32px;
-  gap: 8px;
-  align-items: center;
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--muted);
-  padding: 2px 8px;
+textarea {
+  width: 100%;
+  min-height: 110px;
+  background: #080c12;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  font: inherit;
+  resize: vertical;
 }
-.tl-bar { background: var(--panel-2); border-radius: 999px; height: 8px; overflow: hidden; }
-.tl-bar span { display: block; height: 100%; background: var(--accent); }
-
-.walk li { margin: 6px 0; }
-.detect { border: 1px dashed var(--accent); border-radius: 12px; padding: 14px; margin-top: 16px; }
-.detect .field + .field { margin-top: 10px; }
-
+select {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  font: inherit;
+}
 .filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 16px 0; }
 .field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
 .field select { width: 100%; }
-.check { display: flex; gap: 8px; align-items: center; padding: 4px 0; }
 
 .case-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
-.case-item, .case-item-static {
+.case-item {
   width: 100%;
   display: grid;
   grid-template-columns: 1fr auto;
@@ -214,8 +183,8 @@ select { background: var(--panel-2); }
   color: var(--text);
   font: inherit;
   padding: 12px 14px;
+  cursor: pointer;
 }
-.case-item { cursor: pointer; }
 .case-item:hover { border-color: var(--accent); }
 .ci-title { font-weight: 600; }
 .ci-meta { grid-column: 1; color: var(--muted); font-size: 13px; }
@@ -247,17 +216,6 @@ select { background: var(--panel-2); }
 }
 .badge-card.earned { opacity: 1; border-style: solid; border-color: var(--good); }
 
-.share {
-  font-family: var(--mono);
-  background: #080c12;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px;
-  white-space: pre-wrap;
-  font-size: 14px;
-  margin: 10px 0;
-}
-
 .table-wrap { overflow-x: auto; }
 table.board { width: 100%; border-collapse: collapse; }
 table.board th, table.board td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--border); }
@@ -271,31 +229,10 @@ table.board tr.me td { color: var(--accent); font-weight: 700; }
 .note { border-top: 1px solid var(--border); padding: 12px 0; }
 .note pre { white-space: pre-wrap; font-family: var(--sans); margin: 6px 0; }
 
-#print-area { display: none; }
-
 @media (max-width: 560px) {
   h1 { font-size: 22px; }
   .num { font-size: 26px; }
   .card { padding: 16px; }
-}
-
-@media print {
-  body * { visibility: hidden !important; }
-  #print-area, #print-area * { visibility: visible !important; }
-  #print-area {
-    display: block !important;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    background: #fff;
-    color: #000;
-    padding: 0 12px;
-  }
-  #print-area h1, #print-area h2 { color: #000; }
-  #print-area .ws-log { font-family: monospace; font-size: 11px; white-space: pre-wrap; border: 1px solid #999; padding: 6px; }
-  .page-break { break-before: page; }
-  header.top, footer.foot, .flash { display: none !important; }
 }
 </style>
 </head>
@@ -305,7 +242,6 @@ table.board tr.me td { color: var(--accent); font-weight: 700; }
   <nav aria-label="Main">
     <button type="button" data-view="today">Today</button>
     <button type="button" data-view="practice">Practice</button>
-    <button type="button" data-view="classroom">Classroom</button>
     <button type="button" data-view="friends">Friends</button>
     <button type="button" data-view="team">Team</button>
     <button type="button" data-view="progress">Progress</button>
@@ -313,11 +249,8 @@ table.board tr.me td { color: var(--accent); font-weight: 700; }
   </nav>
 </header>
 <main id="app"></main>
-<div id="print-area"></div>
-<footer class="foot">All logs are simulated for training. No real systems or people are involved. ATT&amp;CK is a trademark of The MITRE Corporation.</footer>
+<footer class="foot">All logs are simulated for training. No real systems or people are involved.</footer>
 <script>
-// ---------- built-in cases ----------
-
 const PUZZLES = [
   {
     id: 1,
@@ -325,8 +258,6 @@ const PUZZLES = [
     topic: 'Identity',
     difficulty: 'Medium',
     severity: 'High',
-    attack: 'T1110.003',
-    attackName: 'Password Spraying',
     scenario: 'A help desk ticket says a user got a sign-in alert. Review the Windows Security log from the domain controller for the last hour.',
     lines: [
       `08:01:12 Security 4625 Failed logon. Account: a.morgan  Source IP: 10.0.8.41  Reason: Unknown user name or bad password.`,
@@ -340,14 +271,7 @@ const PUZZLES = [
       `08:07:11 Printer Service: Driver installed on PRN-03.`
     ],
     answer: 6,
-    explanation: 'One source IP tried one password against many accounts (password spraying), and one of them worked. Reset that password, lock the account, and check what h.ross did next.',
-    hint: 'One source IP appears again and again, with a different account name each time.',
-    walkthrough: [
-      'Many failed logons come from one IP, each with a different account name. That pattern is password spraying.',
-      'One logon then succeeds from the same IP. That account is compromised.',
-      'Check what the account did next, such as privilege assignment or file share access.',
-      'Lock the account, reset the password, and block the source IP at the edge.'
-    ]
+    explanation: 'One source IP tried one password against many accounts (password spraying), and one of them worked. Reset that password, lock the account, and check what h.ross did next.'
   },
   {
     id: 2,
@@ -355,8 +279,6 @@ const PUZZLES = [
     topic: 'Malware',
     difficulty: 'Easy',
     severity: 'High',
-    attack: 'T1566.001',
-    attackName: 'Spearphishing Attachment',
     scenario: 'An employee says they opened an invoice attachment this morning. Review the endpoint telemetry from their laptop.',
     lines: [
       `09:12:40 Sysmon 1 Process create. Image: C:\\Program Files\\Microsoft Office\\OUTLOOK.EXE  ParentImage: explorer.exe`,
@@ -368,14 +290,7 @@ const PUZZLES = [
       `09:20:02 Windows Update Client: Installed update KB5041585.`
     ],
     answer: 2,
-    explanation: 'Word opened a macro-enabled document from the Temp folder, then started PowerShell hidden with an encoded command. Office apps rarely start PowerShell on their own. Isolate the laptop and block the connection to 203.0.113.77.',
-    hint: 'Look for an Office app starting a shell, not just opening a file.',
-    walkthrough: [
-      'Outlook opened a document from the Temp folder, which is where attachments are stored.',
-      'Word then started PowerShell hidden with an encoded command. Office should never do that.',
-      'PowerShell connected to an outside IP on port 443 and wrote a new executable.',
-      'Isolate the laptop, block 203.0.113.77, and search other mailboxes for the same attachment.'
-    ]
+    explanation: 'Word opened a macro-enabled document from the Temp folder, then started PowerShell hidden with an encoded command. Office apps rarely start PowerShell on their own. Isolate the laptop and block the connection to 203.0.113.77.'
   },
   {
     id: 3,
@@ -383,8 +298,6 @@ const PUZZLES = [
     topic: 'Persistence',
     difficulty: 'Medium',
     severity: 'Medium',
-    attack: 'T1053.005',
-    attackName: 'Scheduled Task',
     scenario: 'A server admin asks why a new scheduled task appeared on PRINT01 overnight. Review the task and logon events from the last 24 hours.',
     lines: [
       `22:14:02 Security 4624 Successful logon. Account: svc_print  Logon type: 5  Source: services.exe`,
@@ -394,14 +307,7 @@ const PUZZLES = [
       `01:00:02 Print Service: Job 4412 completed on HP-LaserJet-3F.`
     ],
     answer: 2,
-    explanation: 'A task named to look like a Windows update runs a file from ProgramData, and a print service account created it. Print accounts should never create tasks. Disable the task, hash upd.exe, and check where svc_print logged on.',
-    hint: 'Compare the task name and its command with real Windows tasks, and ask which account created it.',
-    walkthrough: [
-      'A print service account created a scheduled task. Service accounts rarely create tasks.',
-      'The task name imitates Windows Update, and its command runs a file from ProgramData.',
-      'A clean antivirus scan does not rule out persistence. Check the task itself.',
-      'Disable the task, hash upd.exe, and look for the same task name on other hosts.'
-    ]
+    explanation: 'A task named to look like a Windows update runs a file from ProgramData, and a print service account created it. Print accounts should never create tasks. Disable the task, hash upd.exe, and check where svc_print logged on.'
   },
   {
     id: 4,
@@ -409,8 +315,6 @@ const PUZZLES = [
     topic: 'Lateral movement',
     difficulty: 'Hard',
     severity: 'High',
-    attack: 'T1569.002',
-    attackName: 'Service Execution',
     scenario: 'The SOC flagged a backup administrator account. Review the logons and service installs on the three hosts named in the alert.',
     lines: [
       `10:21:58 Security 4624 Successful logon. Account: adm_backup  Logon type: 3  Source IP: 10.0.2.15  Target: FS01`,
@@ -421,14 +325,7 @@ const PUZZLES = [
       `10:23:05 Sysmon 1 Process create. Image: C:\\Windows\\PSEXESVC.exe  ParentImage: services.exe  Host: WS-114`
     ],
     answer: 4,
-    explanation: 'PSEXESVC is a remote execution service, so this install means someone ran commands on WS-114 remotely. Together with three quick logons from the same IP, this looks like lateral movement, not backup work.',
-    hint: 'Remote execution usually leaves a service install on the target machine.',
-    walkthrough: [
-      'One backup admin account logged on to three hosts within about 30 seconds.',
-      'PSEXESVC was installed on WS-114, a classic sign of remote command execution.',
-      'The process start shows the service running commands on the workstation.',
-      'Disable the account, check the source 10.0.2.15, and review what ran on each host.'
-    ]
+    explanation: 'PSEXESVC is a remote execution service, so this install means someone ran commands on WS-114 remotely. Together with three quick logons from the same IP, this looks like lateral movement, not backup work.'
   },
   {
     id: 5,
@@ -436,8 +333,6 @@ const PUZZLES = [
     topic: 'Privilege escalation',
     difficulty: 'Medium',
     severity: 'High',
-    attack: 'T1098',
-    attackName: 'Account Manipulation',
     scenario: 'A helpdesk account opened a ticket about slow logons. Review the account and group membership changes on the domain controller.',
     lines: [
       `11:02:17 Security 4724 Password reset attempted. Subject: CORP\\helpdesk_t2  Target: CORP\\jlee`,
@@ -448,14 +343,7 @@ const PUZZLES = [
       `12:00:00 Windows Update Client: Installed update KB5041585.`
     ],
     answer: 3,
-    explanation: 'temp_helpdesk added itself to the local Administrators group. Helpdesk accounts do not change admin groups for themselves. Remove the membership and review everything this account did afterward.',
-    hint: 'Check who made the change and who was added to the group.',
-    walkthrough: [
-      'A password reset and an account change by a helpdesk account came first. Those can be routine.',
-      'Then the same account added itself to the local Administrators group.',
-      'Helpdesk accounts do not need to change admin groups. This is privilege escalation.',
-      'Remove the membership, reset the account, and review its activity since the change.'
-    ]
+    explanation: 'temp_helpdesk added itself to the local Administrators group. Helpdesk accounts do not change admin groups for themselves. Remove the membership and review everything this account did afterward.'
   },
   {
     id: 6,
@@ -463,8 +351,6 @@ const PUZZLES = [
     topic: 'Credential access',
     difficulty: 'Hard',
     severity: 'Critical',
-    attack: 'T1003.001',
-    attackName: 'LSASS Memory',
     scenario: 'EDR raised an alert on FIN-LAPTOP-22. Review the process activity from the 15 minutes before the alert.',
     lines: [
       `14:01:03 Sysmon 1 Process create. Image: C:\\Windows\\System32\\tasklist.exe  ParentImage: cmd.exe  CommandLine: tasklist /svc`,
@@ -475,14 +361,7 @@ const PUZZLES = [
       `14:06:01 Windows Update Client: Installed update KB5041585.`
     ],
     answer: 1,
-    explanation: 'rundll32 calling the MiniDump export of comsvcs.dll to write lsass.exe memory to a file is a known credential-dumping method. The dump can expose password hashes. Treat the laptop as compromised and reset credentials used on it.',
-    hint: 'Look for a process reading the memory of lsass.exe.',
-    walkthrough: [
-      'tasklist /svc is reconnaissance. The attacker is looking for security processes.',
-      'rundll32 calling the MiniDump export of comsvcs.dll wrote a memory dump of the LSASS process.',
-      'Sysmon shows rundll32 opening lsass.exe with full access (0x1FFFFF).',
-      'Treat the laptop as compromised. Reset passwords used on it and review every host it logged on to.'
-    ]
+    explanation: 'rundll32 calling the MiniDump export of comsvcs.dll to write lsass.exe memory to a file is a known credential-dumping method. The dump can expose password hashes. Treat the laptop as compromised and reset credentials used on it.'
   },
   {
     id: 7,
@@ -490,8 +369,6 @@ const PUZZLES = [
     topic: 'Exfiltration',
     difficulty: 'Medium',
     severity: 'High',
-    attack: 'T1567.002',
-    attackName: 'Exfiltration to Cloud Storage',
     scenario: 'Finance reports that FS01 slowed down yesterday afternoon. Review file access and process events for that time.',
     lines: [
       `16:02:11 Security 4663 File access. Account: CORP\\dmiller  Object: \\\\FS01\\Finance\\Payroll\\2026\\  Access: ReadData`,
@@ -501,14 +378,7 @@ const PUZZLES = [
       `16:40:00 Print Service: Job 9921 completed on FIN-PRN-02.`
     ],
     answer: 3,
-    explanation: 'Finance files were read, packed into one archive, then copied to an external cloud remote with rclone. Moving data to a storage target outside the company is exfiltration. Block the remote and check whether dmiller was allowed to move this data.',
-    hint: 'Find the step where data leaves the network, not the step where it was packed.',
-    walkthrough: [
-      'Finance files were read in bulk. That is collection.',
-      'The files were compressed into one archive. That is staging.',
-      'rclone copied the archive to an external cloud remote. That is exfiltration.',
-      'Block the remote, check the access rights of the account dmiller, and review cloud storage logs.'
-    ]
+    explanation: 'Finance files were read, packed into one archive, then copied to an external cloud remote with rclone. Moving data to a storage target outside the company is exfiltration. Block the remote and check whether dmiller was allowed to move this data.'
   },
   {
     id: 8,
@@ -516,8 +386,6 @@ const PUZZLES = [
     topic: 'Ransomware',
     difficulty: 'Easy',
     severity: 'Critical',
-    attack: 'T1490',
-    attackName: 'Inhibit System Recovery',
     scenario: 'Sales staff report files that will not open. Review the endpoint events on SALES-PC-09 from the last hour.',
     lines: [
       `01:58:12 Sysmon 1 Process create. Image: C:\\Windows\\System32\\wbadmin.exe  CommandLine: wbadmin get versions`,
@@ -528,14 +396,7 @@ const PUZZLES = [
       `06:00:00 Windows Update Client: No updates installed.`
     ],
     answer: 1,
-    explanation: 'Deleting every shadow copy removes the easy way back, and attackers usually do it just before encryption. The ransom note and the .locked renames come after it. Isolate SALES-PC-09 from the network now.',
-    hint: 'Find the command that removes the way back before any files are changed.',
-    walkthrough: [
-      'wbadmin lists backups. That is reconnaissance for recovery options.',
-      'vssadmin deletes every shadow copy, so files cannot be restored easily.',
-      'bcdedit turns off recovery options. The ransom note and renamed files come after.',
-      'Isolate SALES-PC-09 now, then restore from offline backups. Involve your incident response team before any decision about payment.'
-    ]
+    explanation: 'Deleting every shadow copy removes the easy way back, and attackers usually do it just before encryption. The ransom note and the .locked renames come after it. Isolate SALES-PC-09 from the network now.'
   },
   {
     id: 9,
@@ -543,8 +404,6 @@ const PUZZLES = [
     topic: 'Web',
     difficulty: 'Hard',
     severity: 'High',
-    attack: 'T1505.003',
-    attackName: 'Web Shell',
     scenario: 'The web team noticed odd requests on the company site. Review the IIS and endpoint logs for the web server WEB02.',
     lines: [
       `12:29:50 IIS POST /profile/avatar.aspx  200  ClientIP: 198.51.100.23  Bytes: 1842`,
@@ -555,14 +414,7 @@ const PUZZLES = [
       `12:32:04 IIS GET /images/cache/x.aspx?c=ipconfig /all  200  ClientIP: 198.51.100.23`
     ],
     answer: 3,
-    explanation: 'The IIS worker process w3wp.exe started a command shell, which a normal website never does. It ran whoami right after a request to an uploaded file in the cache folder. That is a web shell. Remove x.aspx, fix the upload handler, and review everything it ran.',
-    hint: 'Compare what the web server process starts with what a website should ever start.',
-    walkthrough: [
-      'The avatar uploads look ordinary. Upload features are a common entry point.',
-      'A request to a file in the cache folder runs a command.',
-      'w3wp.exe, the IIS worker, started cmd.exe. That only happens when code runs on the server.',
-      'Remove x.aspx, fix the upload checks, and review every command run since the first upload.'
-    ]
+    explanation: 'The IIS worker process w3wp.exe started a command shell, which a normal website never does. It ran whoami right after a request to an uploaded file in the cache folder. That is a web shell. Remove x.aspx, fix the upload handler, and review everything it ran.'
   },
   {
     id: 10,
@@ -570,8 +422,6 @@ const PUZZLES = [
     topic: 'Defense evasion',
     difficulty: 'Easy',
     severity: 'Medium',
-    attack: 'T1562.001',
-    attackName: 'Disable or Modify Tools',
     scenario: 'A laptop shows no antivirus alerts for two hours, but the user says nothing changed. Review the Defender and process logs.',
     lines: [
       `07:40:12 Windows Defender 5000 Real-time protection is enabled.`,
@@ -581,14 +431,7 @@ const PUZZLES = [
       `08:12:31 Security 4624 Successful logon. Account: jsanchez  Logon type: 2  Workstation: FIN-LAPTOP-07`
     ],
     answer: 1,
-    explanation: 'A registry command turned off Defender through policy, and Defender then logged that real-time protection was disabled. Normal work does not do this. Turn protection back on, check the account for compromise, and find out how the command was started.',
-    hint: 'Look for a registry change made just before Defender reported that protection was off.',
-    walkthrough: [
-      'Defender was enabled at 07:40, as expected.',
-      'reg.exe added a policy value that turns off anti-spyware, run from the account jsanchez.',
-      'Defender then logged that real-time protection was disabled.',
-      'Turn protection back on, check jsanchez for compromise, and find out what launched reg.exe.'
-    ]
+    explanation: 'A registry command turned off Defender through policy, and Defender then logged that real-time protection was disabled. Normal work does not do this. Turn protection back on, check the account for compromise, and find out how the command was started.'
   },
   {
     id: 11,
@@ -596,8 +439,6 @@ const PUZZLES = [
     topic: 'Credential access',
     difficulty: 'Hard',
     severity: 'Medium',
-    attack: 'T1558.003',
-    attackName: 'Kerberoasting',
     scenario: 'A domain controller shows a burst of service ticket requests from one workstation. Review the Kerberos events for 15 minutes.',
     lines: [
       `09:11:02 Security 4769 Service ticket requested. Account: jmoore@CORP  Service: HTTP/intranet  Client: 10.0.5.21  Encryption: 0x12 (AES256)`,
@@ -608,14 +449,7 @@ const PUZZLES = [
       `09:25:00 Security 4769 Service ticket requested. Account: rpatel@CORP  Service: krbtgt/CORP  Client: 10.0.5.33  Encryption: 0x12 (AES256)`
     ],
     answer: 2,
-    explanation: 'One account requested tickets for several services within seconds, all downgraded to RC4 (0x17), from one workstation. Requests like this are the pattern of Kerberoasting. Reset the targeted service account passwords and check 10.0.5.90.',
-    hint: 'Count the requests and check the encryption type on each one.',
-    walkthrough: [
-      'Most requests use AES (0x12), which is normal.',
-      'One account asked for several service tickets in a few seconds, all using RC4 (0x17).',
-      'A burst of RC4 requests for service accounts is the pattern of Kerberoasting.',
-      'Reset the passwords of the targeted service accounts, and check 10.0.5.90.'
-    ]
+    explanation: 'One account requested tickets for several services within seconds, all downgraded to RC4 (0x17), from one workstation. Requests like this are the pattern of Kerberoasting. Reset the targeted service account passwords and check 10.0.5.90.'
   },
   {
     id: 12,
@@ -623,8 +457,6 @@ const PUZZLES = [
     topic: 'Insider',
     difficulty: 'Medium',
     severity: 'Medium',
-    attack: 'T1052.001',
-    attackName: 'Exfiltration over USB',
     scenario: 'HR logged a resignation notice for a team lead today. Review file and device activity from the last hour of their shift.',
     lines: [
       `17:02:00 HR system: Resignation notice recorded for nreyes. Last working day: today.`,
@@ -636,29 +468,25 @@ const PUZZLES = [
       `18:03:00 Windows Update Client: Installed update KB5041585.`
     ],
     answer: 5,
-    explanation: 'Salary and benefits files were read in bulk, then a new USB storage device was connected on the employee\'s last day. The device is where data could leave the building. It is not proof of theft, so escalate it through your HR and legal process before contacting the person.',
-    hint: 'Follow the data: reads, then printing, then a device. Which step moves data off the network?',
-    walkthrough: [
-      'HR logged a resignation for the account nreyes.',
-      'The account read salary, org chart, and benefits files in bulk.',
-      'It printed a salary file, and then a USB storage device was connected.',
-      'Follow your HR and legal process first. Preserve the logs, and check whether the USB device was allowed.'
-    ]
+    explanation: 'Salary and benefits files were read in bulk, then a new USB storage device was connected on the employee\'s last day. The device is where data could leave the building. It is not proof of theft, so escalate it through your HR and legal process before contacting the person.'
   }
 ];
 
-const TOPICS = [...new Set(PUZZLES.map(c => c.topic))].sort();
-const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
-const SEVERITIES = ['Low', 'Medium', 'High', 'Critical'];
-const KEY_RE = /^(\d{1,2}|gen-\d{1,10}|c-[a-z0-9-]{3,40})$/;
-
-// Sample data for the demo pages.
-const FRIENDS = [
-  { name: 'Ava K.', points: 1240, solved: 11 },
-  { name: 'Marcus T.', points: 980, solved: 9 },
-  { name: 'Priya S.', points: 760, solved: 7 },
-  { name: 'Dev R.', points: 410, solved: 4 }
+const BADGES = [
+  { name: 'First Hunt', desc: 'Solve your first case.', earned: s => s.solved >= 1 },
+  { name: 'Halfway There', desc: 'Solve 6 cases.', earned: s => s.solved >= 6 },
+  { name: 'Full Coverage', desc: 'Solve all 12 cases.', earned: s => s.solved >= PUZZLES.length },
+  { name: 'Three in a Row', desc: 'Finish the daily case 3 days in a row.', earned: s => s.bestStreak >= 3 },
+  { name: 'Clean Sweep', desc: 'Get 5 or more answers right with no misses.', earned: s => s.attempts >= 5 && s.correct === s.attempts }
 ];
+
+const FRIENDS = [
+  { name: 'Ava K.', solved: 11, bestStreak: 9 },
+  { name: 'Marcus T.', solved: 9, bestStreak: 5 },
+  { name: 'Priya S.', solved: 7, bestStreak: 3 },
+  { name: 'Dev R.', solved: 4, bestStreak: 1 }
+];
+
 const TEAM = {
   name: 'Blue Team Sprint',
   goal: 12,
@@ -669,294 +497,49 @@ const TEAM = {
   ]
 };
 
-const BADGES = [
-  { name: 'First Hunt', desc: 'Solve your first case.', earned: s => s.solved >= 1 },
-  { name: 'Halfway There', desc: 'Solve 6 cases.', earned: s => s.solved >= 6 },
-  { name: 'Full Coverage', desc: 'Solve all 12 daily-set cases.', earned: s => s.builtInSolved >= PUZZLES.length },
-  { name: 'Three in a Row', desc: 'Finish the daily case 3 days in a row.', earned: s => s.bestStreak >= 3 },
-  { name: 'Clean Sweep', desc: 'Get 5 or more answers right with no misses.', earned: s => s.attempts >= 5 && s.correct === s.attempts },
-  { name: 'Rule Writer', desc: 'Write 3 detection rules that pass the check.', earned: s => s.detections >= 3 },
-  { name: 'Endless Hunter', desc: 'Solve 3 randomly generated cases.', earned: s => s.generatedSolved >= 3 },
-  { name: 'Assignment Done', desc: 'Finish every case in one classroom assignment.', earned: s => s.assignmentDone }
-];
-
-// ---------- helpers ----------
-
 const DAY_MS = 86400000;
 const STORE_KEY = 'loghunt.v1';
 const NOTE_MAX = 2000;
-const POINTS_SOLVE = 100;
-const POINTS_HINT_PENALTY = 25;
-const POINTS_DETECTION = 25;
-const EPOCH_KEY = '2026-01-01';
-
+const TOPICS = [...new Set(PUZZLES.map(c => c.topic))].sort();
 const app = document.getElementById('app');
-const printArea = document.getElementById('print-area');
-const esc = value => String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
-const keyOf = c => String(c.id);
-const attackUrl = id => `https://attack.mitre.org/techniques/${id.replace('.', '/')}/`;
 
-function makeRng(seed) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-const pick = (arr, r) => arr[Math.floor(r() * arr.length)];
-function shuffle(arr, r) {
-  const copy = arr.slice();
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(r() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
-const clock = s => [3600, 60, 1].map((n, i) => String(Math.floor(s / n) % (i ? 60 : 24)).padStart(2, '0')).join(':');
-
-// The event a line belongs to, e.g. "Sysmon 1" or "Security 4624" or "IIS".
-function sourceOf(text) {
-  const body = text.replace(/^\d{2}:\d{2}:\d{2}\s+/, '');
-  const m = body.match(/^(Sysmon|Security|System|Windows Defender|Kernel-PnP)\s+(\d{1,4})\b/);
-  return m ? `${m[1]} ${m[2]}` : body.split(/[\s:]/)[0];
-}
-
-// ---------- generated cases (endless practice) ----------
-
-const GEN_HOSTS = ['WS-101', 'WS-114', 'FS01', 'HR-DB02', 'PRINT01', 'FIN-LAPTOP-07', 'SALES-PC-09', 'DEV-22'];
-const GEN_USERS = ['a.morgan', 'j.kim', 'm.patel', 'r.lopez', 's.okafor', 't.nguyen', 'd.brown', 'h.ross', 'k.wilson', 'l.chen'];
-const GEN_NOISE = [
-  () => `Windows Update Client: Installed update KB5041585.`,
-  r => `Print Service: Job ${4000 + Math.floor(r() * 900)} completed on PRN-0${1 + Math.floor(r() * 3)}.`,
-  () => `Windows Defender: Scan completed. No threats found.`,
-  (r, pool) => `Security 4624 Successful logon. Account: ${pick(pool, r)}  Logon type: 2  Workstation: WS-${100 + Math.floor(r() * 80)}`,
-  (r, pool) => `Security 4634 An account was logged off. Account: ${pick(pool, r)}`
-];
-
-const GEN_TEMPLATES = [
-  {
-    titles: ['Quiet Logon Burst', 'Many Doors, One Key'],
-    topic: 'Identity', difficulty: 'Medium', severity: 'High',
-    attack: 'T1110.003', attackName: 'Password Spraying',
-    hint: 'One source IP appears again and again, with a different account name each time.',
-    walkthrough: [
-      'Many failed logons come from one IP, each with a different account name. That is password spraying.',
-      'One logon then succeeds from the same IP. That account is compromised.',
-      'Check what the account did next, such as privilege assignment or file share access.',
-      'Lock the account, reset the password, and block the source IP.'
-    ],
-    build(r, t) {
-      const ip = `10.0.${1 + Math.floor(r() * 9)}.${20 + Math.floor(r() * 200)}`;
-      const users = shuffle(GEN_USERS, r).slice(0, 4 + Math.floor(r() * 3));
-      const winner = users[0];
-      const events = users.slice(1).map((u, n) => ({ s: t + n * 2, text: `Security 4625 Failed logon. Account: ${u}  Source IP: ${ip}  Reason: Unknown user name or bad password.` }));
-      const after = events.length * 2;
-      events.push({ s: t + after, text: `Security 4624 Successful logon. Account: ${winner}  Logon type: 3  Source IP: ${ip}`, turn: true });
-      events.push({ s: t + after + 3, text: `Security 4672 Special privileges assigned to new logon. Account: ${winner}` });
-      return { events, explanation: `One IP tried one password against many accounts, and one of them worked. Reset the password for ${winner}, lock the account, and check what it did next.` };
-    }
-  },
-  {
-    titles: ['Document Surprise', 'Office Gone Shell'],
-    topic: 'Malware', difficulty: 'Easy', severity: 'High',
-    attack: 'T1566.001', attackName: 'Spearphishing Attachment',
-    hint: 'Look for an Office app starting a shell, not just opening a file.',
-    walkthrough: [
-      'Outlook opened a document from the Temp folder.',
-      'Word started PowerShell hidden with an encoded command. Office should never do that.',
-      'PowerShell connected to an outside IP on port 443.',
-      'Isolate the machine, block the destination, and search mailboxes for the same attachment.'
-    ],
-    build(r, t) {
-      const user = pick(GEN_USERS, r);
-      const dest = `203.0.113.${10 + Math.floor(r() * 200)}`;
-      const events = [
-        { s: t, text: `Sysmon 1 Process create. Image: C:\\Program Files\\Microsoft Office\\OUTLOOK.EXE  ParentImage: explorer.exe` },
-        { s: t + 8, text: `Sysmon 1 Process create. Image: C:\\Program Files\\Microsoft Office\\WINWORD.EXE  ParentImage: OUTLOOK.EXE  CommandLine: WINWORD.EXE /n "C:\\Users\\${user}\\AppData\\Local\\Temp\\Invoice_${1000 + Math.floor(r() * 8000)}.docm"` },
-        { s: t + 11, text: `Sysmon 1 Process create. Image: powershell.exe  ParentImage: WINWORD.EXE  CommandLine: powershell -nop -w hidden -enc JABzAD0ATgBlAHcA...`, turn: true },
-        { s: t + 13, text: `Sysmon 3 Network connection. Image: powershell.exe  DestIP: ${dest}  DestPort: 443` }
-      ];
-      return { events, explanation: `Word opened a macro-enabled document, then started PowerShell hidden with an encoded command. Isolate the machine and block ${dest}.` };
-    }
-  },
-  {
-    titles: ['Admin Hops', 'Remote Service Install'],
-    topic: 'Lateral movement', difficulty: 'Hard', severity: 'High',
-    attack: 'T1569.002', attackName: 'Service Execution',
-    hint: 'Remote execution usually leaves a service install on the target machine.',
-    walkthrough: [
-      'One admin account logged on to several hosts in a short time.',
-      'PSEXESVC was installed on the last host, a sign of remote command execution.',
-      'The process start shows the service running commands on that host.',
-      'Disable the account, check the source address, and review what ran on each host.'
-    ],
-    build(r, t) {
-      const admin = `adm_${pick(['backup', 'ops', 'deploy'], r)}`;
-      const ip = `10.0.${2 + Math.floor(r() * 4)}.${10 + Math.floor(r() * 200)}`;
-      const hosts = shuffle(GEN_HOSTS, r).slice(0, 3);
-      const events = hosts.map((h, n) => ({ s: t + n * 14, text: `Security 4624 Successful logon. Account: ${admin}  Logon type: 3  Source IP: ${ip}  Target: ${h}` }));
-      const last = hosts[hosts.length - 1];
-      events.push({ s: t + 42, text: `System 7045 A service was installed. Service Name: PSEXESVC  Image: %SystemRoot%\\PSEXESVC.exe  Account: ${admin}  Host: ${last}`, turn: true });
-      events.push({ s: t + 46, text: `Sysmon 1 Process create. Image: C:\\Windows\\PSEXESVC.exe  ParentImage: services.exe  Host: ${last}` });
-      return { events, explanation: `PSEXESVC is a remote execution service. Installed on ${last} from ${ip}, right after quick logons to several hosts, this is lateral movement.` };
-    }
-  },
-  {
-    titles: ['Memory Grab', 'Silent Dump'],
-    topic: 'Credential access', difficulty: 'Hard', severity: 'Critical',
-    attack: 'T1003.001', attackName: 'LSASS Memory',
-    hint: 'Look for a process reading the memory of lsass.exe.',
-    walkthrough: [
-      'A process listing shows the attacker looking for security tools.',
-      'rundll32 calling the MiniDump export of comsvcs.dll wrote a memory dump of LSASS.',
-      'Sysmon shows the dump process opening lsass.exe with full access.',
-      'Treat the machine as compromised and reset every credential used on it.'
-    ],
-    build(r, t) {
-      const pid = 400 + Math.floor(r() * 900);
-      const events = [
-        { s: t, text: `Sysmon 1 Process create. Image: C:\\Windows\\System32\\tasklist.exe  ParentImage: cmd.exe  CommandLine: tasklist /svc` },
-        { s: t + 60, text: `Sysmon 1 Process create. Image: C:\\Windows\\System32\\rundll32.exe  ParentImage: cmd.exe  CommandLine: rundll32.exe C:\\Windows\\System32\\comsvcs.dll, MiniDump ${pid} C:\\Temp\\m.bin full`, turn: true },
-        { s: t + 62, text: `Sysmon 10 Process access. SourceImage: rundll32.exe  TargetImage: C:\\Windows\\System32\\lsass.exe  GrantedAccess: 0x1FFFFF` }
-      ];
-      return { events, explanation: `rundll32 calling the MiniDump export of comsvcs.dll wrote lsass.exe memory to a file. The dump can expose password hashes, so treat the machine as compromised.` };
-    }
-  },
-  {
-    titles: ['Vanishing Copies', 'Recovery Removed'],
-    topic: 'Ransomware', difficulty: 'Easy', severity: 'Critical',
-    attack: 'T1490', attackName: 'Inhibit System Recovery',
-    hint: 'Find the command that removes the way back before any files are changed.',
-    walkthrough: [
-      'Backup listing is reconnaissance for recovery options.',
-      'Deleting every shadow copy removes the easy way back.',
-      'Recovery options are disabled, and renamed files and a ransom note follow.',
-      'Isolate the machine now, then restore from offline backups with your incident response team.'
-    ],
-    build(r, t) {
-      const user = pick(GEN_USERS, r);
-      const events = [
-        { s: t, text: `Sysmon 1 Process create. Image: C:\\Windows\\System32\\wbadmin.exe  CommandLine: wbadmin get versions` },
-        { s: t + 300, text: `Sysmon 1 Process create. Image: C:\\Windows\\System32\\vssadmin.exe  CommandLine: vssadmin.exe delete shadows /all /quiet`, turn: true },
-        { s: t + 322, text: `Security 4688 Process create. NewProcess: bcdedit.exe  CommandLine: bcdedit /set {default} recoveryenabled No` },
-        { s: t + 363, text: `Sysmon 11 File create. TargetFilename: C:\\Users\\${user}\\Documents\\README_RESTORE.txt` }
-      ];
-      return { events, explanation: `Shadow copies were deleted before any files changed, which removes the easy way back. Isolate the machine now and restore from offline backups.` };
-    }
-  }
-];
-
-function generateCase(seed) {
-  const r = makeRng(seed);
-  const tpl = pick(GEN_TEMPLATES, r);
-  const host = pick(GEN_HOSTS, r);
-  const t = 8 * 3600 + Math.floor(r() * 8 * 3600);
-  const attack = tpl.build(r, t);
-  const noise = Array.from({ length: 2 + Math.floor(r() * 3) }, () => ({
-    s: 8 * 3600 + Math.floor(r() * 9 * 3600),
-    text: pick(GEN_NOISE, r)(r, GEN_USERS)
-  }));
-  const events = [...attack.events, ...noise].sort((a, b) => a.s - b.s);
-  return {
-    id: `gen-${seed}`,
-    generated: true,
-    title: `${pick(tpl.titles, r)} #${1000 + (seed % 9000)}`,
-    topic: tpl.topic,
-    difficulty: tpl.difficulty,
-    severity: tpl.severity,
-    attack: tpl.attack,
-    attackName: tpl.attackName,
-    scenario: `An alert fired on ${host}. Review the Security and endpoint logs for the working day.`,
-    lines: events.map(e => `${clock(e.s)} ${e.text}`),
-    answer: events.findIndex(e => e.turn),
-    explanation: attack.explanation,
-    hint: tpl.hint,
-    walkthrough: tpl.walkthrough
-  };
-}
-
-// ---------- community cases (loaded from community/cases/index.json) ----------
-
-let communityCases = [];
-
-function isValidCommunityCase(c) {
-  return !!c && typeof c === 'object'
-    && /^c-[a-z0-9-]{3,40}$/.test(c.id)
-    && !PUZZLES.some(p => keyOf(p) === c.id)
-    && typeof c.title === 'string' && c.title.length > 0 && c.title.length <= 60
-    && TOPICS.includes(c.topic)
-    && DIFFICULTIES.includes(c.difficulty)
-    && SEVERITIES.includes(c.severity)
-    && typeof c.scenario === 'string' && c.scenario.length <= 400
-    && Array.isArray(c.lines) && c.lines.length >= 4 && c.lines.length <= 30
-    && c.lines.every(l => typeof l === 'string' && l.length <= 300 && /^\d{2}:\d{2}:\d{2}\s/.test(l))
-    && Number.isInteger(c.answer) && c.answer >= 0 && c.answer < c.lines.length
-    && typeof c.explanation === 'string' && c.explanation.length <= 500
-    && typeof c.hint === 'string' && c.hint.length <= 200
-    && /^T\d{4}(\.\d{3})?$/.test(c.attack)
-    && typeof c.attackName === 'string' && c.attackName.length <= 80
-    && Array.isArray(c.walkthrough) && c.walkthrough.length >= 2 && c.walkthrough.length <= 5
-    && c.walkthrough.every(s => typeof s === 'string' && s.length <= 300);
-}
-
-function allCases() {
-  return [...PUZZLES, ...communityCases];
-}
-
-function findCase(key) {
-  if (/^gen-\d{1,10}$/.test(key)) return generateCase(Number(key.slice(4)));
-  return allCases().find(c => keyOf(c) === key) || null;
-}
-
-// ---------- saved progress ----------
+let state = loadState();
+let currentView = 'today';
+let player = null;
+let filters = { topic: 'All', difficulty: 'All', severity: 'All' };
 
 function defaultState() {
-  return {
-    results: {}, daily: {}, notes: {}, points: {}, bonus: {}, hints: {},
-    assignments: {}, streak: 0, bestStreak: 0, lastDaily: null
-  };
+  return { results: {}, daily: {}, notes: {}, streak: 0, bestStreak: 0, lastDaily: null };
 }
 
-// Rebuild the saved state from known fields only. Anything unexpected is dropped.
+// Rebuild the saved state from known fields only. Anything unexpected,
+// including a tampered or corrupt entry, is dropped instead of trusted.
 function loadState() {
   const fresh = defaultState();
   try {
-    const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return fresh;
+    const saved = JSON.parse(raw);
     if (!saved || typeof saved !== 'object') return fresh;
-    const dict = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
+
+    const caseById = new Map(PUZZLES.map(c => [String(c.id), c]));
     const isCount = n => Number.isInteger(n) && n >= 0 && n <= 1000000;
     const isDay = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
-    const dailyKeys = new Map(PUZZLES.map(c => [keyOf(c), c]));
 
-    for (const [k, r] of Object.entries(dict(saved.results))) {
-      if (KEY_RE.test(k) && r && isCount(r.attempts) && isCount(r.correct) && r.correct <= r.attempts) {
-        fresh.results[k] = { attempts: r.attempts, correct: r.correct };
+    for (const [id, r] of Object.entries(saved.results || {})) {
+      if (caseById.has(id) && r && isCount(r.attempts) && isCount(r.correct) && r.correct <= r.attempts) {
+        fresh.results[id] = { attempts: r.attempts, correct: r.correct };
       }
     }
-    for (const [day, d] of Object.entries(dict(saved.daily))) {
-      const c = d && dailyKeys.get(d.caseId);
-      if (isDay(day) && c && typeof d.correct === 'boolean' && isCount(d.picked) && d.picked < c.lines.length) {
-        fresh.daily[day] = { caseId: d.caseId, picked: d.picked, correct: d.correct };
+    for (const [day, d] of Object.entries(saved.daily || {})) {
+      const c = d && caseById.get(String(d.caseId));
+      if (isDay(day) && c && typeof d.correct === 'boolean' && Number.isInteger(d.picked) && d.picked >= 0 && d.picked < c.lines.length) {
+        fresh.daily[day] = { caseId: c.id, picked: d.picked, correct: d.correct };
       }
     }
-    for (const [k, text] of Object.entries(dict(saved.notes))) {
-      if (KEY_RE.test(k) && typeof text === 'string') fresh.notes[k] = text.slice(0, NOTE_MAX);
-    }
-    for (const [k, p] of Object.entries(dict(saved.points))) {
-      if (KEY_RE.test(k) && isCount(p) && p <= POINTS_SOLVE) fresh.points[k] = p;
-    }
-    for (const [k, v] of Object.entries(dict(saved.bonus))) {
-      if (KEY_RE.test(k) && v === true) fresh.bonus[k] = true;
-    }
-    for (const [k, v] of Object.entries(dict(saved.hints))) {
-      if (KEY_RE.test(k) && v === true) fresh.hints[k] = true;
-    }
-    for (const [code, a] of Object.entries(dict(saved.assignments))) {
-      if (/^[A-Za-z0-9_-]{4,4000}$/.test(code) && a && typeof a.name === 'string' && a.name.length <= 60
-        && Array.isArray(a.keys) && a.keys.length > 0 && a.keys.length <= 20 && a.keys.every(k => KEY_RE.test(k))) {
-        fresh.assignments[code] = { name: a.name, keys: a.keys };
+    for (const [id, text] of Object.entries(saved.notes || {})) {
+      if (caseById.has(id) && typeof text === 'string') {
+        fresh.notes[id] = text.slice(0, NOTE_MAX);
       }
     }
     if (isCount(saved.streak)) fresh.streak = saved.streak;
@@ -968,17 +551,17 @@ function loadState() {
   return fresh;
 }
 
-let state = loadState();
-
 function saveState() {
   try {
     localStorage.setItem(STORE_KEY, JSON.stringify(state));
   } catch (e) {
-    // Storage is blocked. The game still works for this visit.
+    // Storage is blocked. The app still works for this visit.
   }
 }
 
-// ---------- dates, streaks, stats ----------
+function esc(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
 
 function dateKey(d = new Date()) {
   const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -1003,125 +586,61 @@ function currentStreak() {
   return state.lastDaily === today || state.lastDaily === yesterdayKey() ? state.streak : 0;
 }
 
-function totalPoints() {
-  const solvePoints = Object.values(state.points).reduce((sum, p) => sum + p, 0);
-  return solvePoints + Object.keys(state.bonus).length * POINTS_DETECTION;
-}
-
 function getStats() {
-  const entries = Object.entries(state.results);
-  const results = entries.map(([, r]) => r);
+  const results = Object.values(state.results);
   const attempts = results.reduce((sum, r) => sum + r.attempts, 0);
   const correct = results.reduce((sum, r) => sum + r.correct, 0);
-  const solvedKeys = entries.filter(([, r]) => r.correct > 0).map(([k]) => k);
-  const assignmentDone = Object.values(state.assignments).some(a =>
-    a.keys.every(k => (state.results[k] || {}).correct > 0));
   return {
-    solved: solvedKeys.length,
-    builtInSolved: PUZZLES.filter(c => solvedKeys.includes(keyOf(c))).length,
-    generatedSolved: solvedKeys.filter(k => k.startsWith('gen-')).length,
+    solved: results.filter(r => r.correct > 0).length,
     attempts,
     correct,
-    accuracy: attempts ? Math.floor((correct / attempts) * 100 + 0.5) : 0,
+    accuracy: attempts ? Math.round((correct / attempts) * 100) : 0,
     streak: currentStreak(),
-    bestStreak: state.bestStreak,
-    points: totalPoints(),
-    detections: Object.keys(state.bonus).length,
-    assignmentDone
+    bestStreak: state.bestStreak
   };
 }
 
-// ---------- answering ----------
-
 function recordAttempt(c, picked, daily) {
-  const key = keyOf(c);
   const correct = picked === c.answer;
-  const r = state.results[key] || { attempts: 0, correct: 0 };
-  const firstWin = correct && r.correct === 0;
+  const r = state.results[c.id] || { attempts: 0, correct: 0 };
   r.attempts += 1;
   if (correct) r.correct += 1;
-  state.results[key] = r;
-  if (firstWin) state.points[key] = state.hints[key] ? POINTS_SOLVE - POINTS_HINT_PENALTY : POINTS_SOLVE;
+  state.results[c.id] = r;
 
-  const today = dateKey();
-  if (daily && !state.daily[today]) {
-    state.daily[today] = { caseId: key, picked, correct };
+  const key = dateKey();
+  if (daily && !state.daily[key]) {
+    state.daily[key] = { caseId: c.id, picked, correct };
     state.streak = state.lastDaily === yesterdayKey() ? state.streak + 1 : 1;
-    state.lastDaily = today;
+    state.lastDaily = key;
     state.bestStreak = Math.max(state.bestStreak, state.streak);
   }
   saveState();
 }
 
-// A detection rule: an event source plus text that must appear in the line.
-// It passes if it finds the turning-point line and at most two other lines.
-function checkDetection(c, source, contains) {
-  const needle = contains.trim().toLowerCase();
-  if (!source || needle.length < 3) {
-    return { ok: false, hits: [], reason: 'Pick a source and type at least 3 characters that appear in the turning-point line.' };
+function openCase(id, daily) {
+  if (!PUZZLES.some(c => c.id === id)) return;
+  const done = daily ? state.daily[dateKey()] : null;
+  if (done && done.caseId === id) {
+    player = { id, daily: true, picked: done.picked, submitted: true };
+  } else {
+    player = { id, daily, picked: null, submitted: false };
   }
-  const hits = c.lines
-    .map((text, i) => ({ text, i }))
-    .filter(({ text }) => sourceOf(text) === source && text.toLowerCase().includes(needle));
-  if (!hits.some(h => h.i === c.answer)) {
-    return { ok: false, hits, reason: 'Your rule does not match the turning-point line.' };
-  }
-  if (hits.length > 3) {
-    return { ok: false, hits, reason: `Too broad: it matches ${hits.length} lines. Make it more specific.` };
-  }
-  return { ok: true, hits, reason: 'Good rule: it finds the turning point and at most two other lines.' };
+  render();
+  window.scrollTo(0, 0);
 }
 
-// ---------- sharing and printing ----------
-
-function shareText() {
-  const cells = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const rec = state.daily[dateKey(d)];
-    cells.push(rec ? (rec.correct ? '✅' : '❌') : '⬜');
-  }
-  const lines = [
-    `LogHunt ${dateKey()}`,
-    cells.join(''),
-    `Streak ${currentStreak()} · Points ${totalPoints()}`
-  ];
-  if (location.protocol.startsWith('http')) lines.push(location.href.split('#')[0]);
-  return lines.join('\n');
-}
-
-async function copyText(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-function printKeys(keys, title) {
-  const cases = keys.map(findCase).filter(Boolean);
-  const questions = cases.map((c, n) => `
-    <section>
-      <h2>${n + 1}. ${esc(c.title)}</h2>
-      <p>${esc(c.topic)} · ${esc(c.difficulty)} · ${esc(c.severity)}</p>
-      <p>${esc(c.scenario)}</p>
-      <div class="ws-log">${c.lines.map((t, i) => `${String(i + 1).padStart(2, ' ')}  ${esc(t)}`).join('\n')}</div>
-      <p>Turning point line: ________</p>
-    </section>`).join('');
-  const key = cases.map((c, n) => `<p><strong>${n + 1}. ${esc(c.title)}:</strong> line ${c.answer + 1}. ${esc(c.explanation)}</p>`).join('');
-  printArea.innerHTML = `<h1>${esc(title)}</h1>${questions}<div class="page-break"></div><h1>Answer key</h1>${key}`;
-  window.print();
+function submitAnswer() {
+  if (!player || player.submitted || player.picked === null) return;
+  const c = PUZZLES.find(x => x.id === player.id);
+  recordAttempt(c, player.picked, player.daily);
+  player.submitted = true;
+  render();
 }
 
 function downloadNotes() {
-  const sections = Object.keys(state.notes)
-    .filter(k => (state.notes[k] || '').trim())
-    .map(k => {
-      const title = (findCase(k) || { title: `Case ${k}` }).title;
-      return `${title}\n${'-'.repeat(title.length)}\n${state.notes[k].trim()}\n`;
-    });
+  const sections = PUZZLES
+    .filter(c => (state.notes[c.id] || '').trim())
+    .map(c => `${c.title}\n${'-'.repeat(c.title.length)}\n${state.notes[c.id].trim()}\n`);
   const blob = new Blob([`LogHunt notes\n\n${sections.join('\n')}`], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1133,64 +652,9 @@ function downloadNotes() {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-// Assignment codes hold a name and a list of case keys. They are not secret.
-function encodeCode(obj) {
-  const bytes = new TextEncoder().encode(JSON.stringify(obj));
-  let bin = '';
-  bytes.forEach(b => { bin += String.fromCharCode(b); });
-  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-function decodeCode(code) {
-  const b64 = code.trim().replace(/-/g, '+').replace(/_/g, '/');
-  const bin = atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4));
-  return JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, ch => ch.charCodeAt(0))));
-}
-
-// ---------- UI state ----------
-
-let currentView = 'today';
-let player = null;
-let flash = '';
-let filters = { topic: 'All', difficulty: 'All', severity: 'All' };
-let labState = { q: '', source: '', timeline: false };
-let detectDraft = { source: '', contains: '' };
-let teacherDraft = { name: '', picks: [] };
-let createdCode = '';
-let joinDraft = '';
-
-function note(message) {
-  flash = message;
-  render();
-}
-
-function openCase(key, daily) {
-  const c = findCase(key);
-  if (!c) return note('That case is not available right now.');
-  const today = state.daily[dateKey()];
-  if (daily && today && today.caseId === key) {
-    player = { key, daily: true, picked: today.picked, submitted: true };
-  } else {
-    player = { key, daily, picked: null, submitted: false };
-  }
-  labState = { q: '', source: '', timeline: false };
-  detectDraft = { source: '', contains: '' };
-  render();
-  window.scrollTo(0, 0);
-}
-
-function submitAnswer() {
-  if (!player || player.submitted || player.picked === null) return;
-  const c = findCase(player.key);
-  recordAttempt(c, player.picked, player.daily);
-  player.submitted = true;
-  render();
-}
-
-// ---------- views ----------
-
 const chips = c => `<span class="chip">${esc(c.topic)}</span><span class="chip">${esc(c.difficulty)}</span><span class="chip sev-${esc(c.severity)}">${esc(c.severity)}</span>`;
-const statBlock = (value, label) => `<div class="stat"><span class="num">${value}</span><span class="lbl">${label}</span></div>`;
+const stat = (value, label) => `<div class="stat"><span class="num">${value}</span><span class="lbl">${label}</span></div>`;
+const score = p => p.solved * 10 + p.bestStreak * 5;
 
 function viewToday() {
   const key = dateKey();
@@ -1198,7 +662,7 @@ function viewToday() {
   const done = state.daily[key];
   const s = getStats();
   const status = done
-    ? `<p class="result ${done.correct ? 'good' : 'bad'}">Today's case is finished: ${done.correct ? 'you found the turning point.' : 'not this time. Read the walkthrough to learn the pattern.'} Come back tomorrow for the next case.</p>`
+    ? `<p class="result ${done.correct ? 'good' : 'bad'}">Today's case is finished: ${done.correct ? 'you found the turning point.' : 'not this time. Read the explanation to learn the pattern.'} Come back tomorrow for the next case.</p>`
     : `<p class="lead">Read the log, tap the line that shows the turning point, and submit. One case a day keeps your streak going.</p>`;
   return `<section class="card">
     <p class="eyebrow">${esc(new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }))}</p>
@@ -1206,116 +670,71 @@ function viewToday() {
     ${status}
     <div class="stats-row">
       <div><span class="num">${s.streak}</span><span class="lbl">Day streak</span></div>
-      <div><span class="num">${s.points}</span><span class="lbl">Points</span></div>
-      <div><span class="num">${s.builtInSolved} / ${PUZZLES.length}</span><span class="lbl">Daily set solved</span></div>
+      <div><span class="num">${s.solved} / ${PUZZLES.length}</span><span class="lbl">Cases solved</span></div>
     </div>
-    <div class="chips"><span class="chip">${esc(c.difficulty)}</span></div>
-    <div class="actions">
-      <button type="button" class="btn primary" data-action="open-case" data-id="${esc(keyOf(c))}" data-daily="1">${done ? 'Review today\'s case' : 'Start today\'s challenge'}</button>
-      ${done ? '<button type="button" class="btn" data-action="copy-share">Copy share card</button>' : ''}
-    </div>
+    <div class="chips"><span class="chip">${c.difficulty}</span></div>
+    <button type="button" class="btn primary" data-action="open-case" data-id="${c.id}" data-daily="1">${done ? 'Review today\'s case' : 'Start today\'s challenge'}</button>
   </section>`;
 }
 
 function viewPractice() {
   const f = filters;
-  const all = allCases();
-  const list = all.filter(c =>
+  const list = PUZZLES.filter(c =>
     (f.topic === 'All' || c.topic === f.topic) &&
     (f.difficulty === 'All' || c.difficulty === f.difficulty) &&
     (f.severity === 'All' || c.severity === f.severity)
   );
-  const topics = [...new Set(all.map(c => c.topic))].sort();
   const select = (name, label, options) => `<label class="field"><span>${label}</span><select data-filter="${name}">${options.map(o => `<option value="${esc(o)}"${filters[name] === o ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></label>`;
   const items = list.map(c => {
-    const solved = (state.results[keyOf(c)] || {}).correct > 0;
-    const origin = c.community ? 'Community · ' : '';
-    return `<li><button type="button" class="case-item" data-action="open-case" data-id="${esc(keyOf(c))}">
+    const r = state.results[c.id];
+    const solved = r && r.correct > 0;
+    return `<li><button type="button" class="case-item" data-action="open-case" data-id="${c.id}">
       <span class="ci-title">${esc(c.title)}</span>
-      <span class="ci-meta">${origin}${esc(c.topic)} · ${esc(c.difficulty)} · ${esc(c.severity)} · ${esc(c.attack)}</span>
+      <span class="ci-meta">${esc(c.topic)} · ${c.difficulty} · ${c.severity}</span>
       <span class="pill${solved ? ' good' : ''}">${solved ? 'Solved' : 'Not yet'}</span>
     </button></li>`;
   }).join('');
   return `<section class="card">
     <h1>Practice</h1>
-    <p class="lead">Replay any case, or generate a new random one. Practice does not change your daily streak, but it does earn points.</p>
-    <div class="actions"><button type="button" class="btn primary" data-action="new-random">Generate a new random case</button></div>
+    <p class="lead">Replay any case. Practice does not change your daily streak.</p>
     <div class="filters">
-      ${select('topic', 'Topic', ['All', ...topics])}
-      ${select('difficulty', 'Difficulty', ['All', ...DIFFICULTIES])}
-      ${select('severity', 'Severity', ['All', ...SEVERITIES])}
+      ${select('topic', 'Topic', ['All', ...TOPICS])}
+      ${select('difficulty', 'Difficulty', ['All', 'Easy', 'Medium', 'Hard'])}
+      ${select('severity', 'Severity', ['All', 'Low', 'Medium', 'High', 'Critical'])}
     </div>
-    <p class="muted small">${list.length} cases</p>
+    <p class="muted small">${list.length} of ${PUZZLES.length} cases</p>
     <ul class="case-list">${items || '<li class="muted">No cases match these filters.</li>'}</ul>
-  </section>`;
-}
-
-function viewClassroom() {
-  const assignments = Object.entries(state.assignments).map(([code, a]) => {
-    const solved = a.keys.filter(k => (state.results[k] || {}).correct > 0).length;
-    return `<li class="case-item-static">
-      <div><strong>${esc(a.name)}</strong><div class="ci-meta">${solved} of ${a.keys.length} solved</div></div>
-      <div class="actions">
-        <button type="button" class="btn small" data-action="start-assignment" data-code="${esc(code)}">Start</button>
-        <button type="button" class="btn small" data-action="print-assignment" data-code="${esc(code)}">Print worksheet</button>
-        <button type="button" class="btn small" data-action="remove-assignment" data-code="${esc(code)}">Remove</button>
-      </div>
-    </li>`;
-  }).join('');
-  const picks = allCases().filter(c => !c.generated);
-  const pickList = picks.map(c => `<label class="check"><input type="checkbox" data-pick-case="${esc(keyOf(c))}"${teacherDraft.picks.includes(keyOf(c)) ? ' checked' : ''}> ${esc(c.title)} <span class="muted small">${esc(c.attack)}</span></label>`).join('');
-  return `<section class="card">
-    <h1>Classroom</h1>
-    <p class="lead">Teachers pick cases and share a code. Students paste the code to get the assignment. Results stay in each student's browser, so the teacher sees progress only from the printed answer key.</p>
-
-    <h2>Join an assignment</h2>
-    <div class="actions">
-      <input class="text-input" type="text" data-join-code placeholder="Paste an assignment code" aria-label="Assignment code" value="${esc(joinDraft)}">
-      <button type="button" class="btn" data-action="join-code">Join</button>
-    </div>
-
-    <h2>Your assignments</h2>
-    <ul class="case-list">${assignments || '<li class="muted">No assignments yet. Join one with a code, or create one below.</li>'}</ul>
-
-    <h2>Create an assignment</h2>
-    <label class="field"><span>Assignment name</span><input class="text-input" type="text" maxlength="60" data-teacher-name placeholder="Week 3: Windows attacks" value="${esc(teacherDraft.name)}"></label>
-    <div class="filters" style="grid-template-columns: 1fr">${pickList}</div>
-    <div class="actions">
-      <button type="button" class="btn primary" data-action="create-code">Create code</button>
-      <button type="button" class="btn" data-action="print-picks">Print worksheet</button>
-    </div>
-    ${createdCode ? `<p class="lead">Share this code with students:</p><div class="actions"><input class="text-input" type="text" readonly value="${esc(createdCode)}" aria-label="Assignment code"><button type="button" class="btn" data-action="copy-code">Copy code</button></div>` : ''}
   </section>`;
 }
 
 function viewFriends() {
   const s = getStats();
-  const rows = [...FRIENDS, { name: 'You', points: s.points, solved: s.solved, me: true }]
-    .sort((a, b) => b.points - a.points)
-    .map((p, i) => `<tr class="${p.me ? 'me' : ''}"><td>${i + 1}</td><td>${esc(p.name)}</td><td>${p.solved}</td><td>${p.points}</td></tr>`)
+  const rows = [...FRIENDS, { name: 'You', solved: s.solved, bestStreak: s.bestStreak, me: true }]
+    .sort((a, b) => score(b) - score(a))
+    .map((p, i) => `<tr class="${p.me ? 'me' : ''}"><td>${i + 1}</td><td>${esc(p.name)}</td><td>${p.solved}</td><td>${p.bestStreak}</td><td>${score(p)}</td></tr>`)
     .join('');
   return `<section class="card">
     <p class="eyebrow">Demo</p>
     <h1>Friends leaderboard</h1>
-    <p class="lead">Sample friends for now. The names are made up and the points are not real.</p>
+    <p class="lead">Sample friends for now. The names are made up and the scores are not real.</p>
     <div class="table-wrap"><table class="board">
-      <thead><tr><th>#</th><th>Player</th><th>Solved</th><th>Points</th></tr></thead>
+      <thead><tr><th>#</th><th>Player</th><th>Solved</th><th>Best streak</th><th>Score</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
-    <p class="muted small">Points: 100 per case solved (75 with a hint), plus 25 per detection rule.</p>
+    <p class="muted small">Score = solved × 10 + best streak × 5.</p>
   </section>`;
 }
 
 function viewTeam() {
   const s = getStats();
-  const total = Math.min(TEAM.goal, TEAM.members.reduce((n, m) => n + m.solved, 0) + s.builtInSolved);
+  const total = Math.min(TEAM.goal, TEAM.members.reduce((n, m) => n + m.solved, 0) + s.solved);
   const pct = Math.round((total / TEAM.goal) * 100);
-  const people = [...TEAM.members, { name: 'You', solved: s.builtInSolved }]
+  const people = [...TEAM.members, { name: 'You', solved: s.solved }]
     .map(m => `<li>${esc(m.name)}: ${m.solved} solved</li>`).join('');
   return `<section class="card">
     <p class="eyebrow">Demo</p>
     <h1>${esc(TEAM.name)}</h1>
-    <p class="lead">Solve ${TEAM.goal} daily-set cases as one team. Sample team and progress only.</p>
+    <p class="lead">Solve ${TEAM.goal} cases as one team. Sample team and progress only.</p>
     <p><strong>${total} of ${TEAM.goal}</strong> cases solved this sprint</p>
     <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><span style="width:${pct}%"></span></div>
     <h2>Team members</h2>
@@ -1331,57 +750,35 @@ function viewProgress() {
     <h1>Progress</h1>
     <p class="lead">Your results so far. Saved in this browser.</p>
     <div class="grid-stats">
-      ${statBlock(`${s.solved}`, 'Cases solved')}
-      ${statBlock(s.points, 'Points')}
-      ${statBlock(`${s.accuracy}%`, 'Accuracy')}
-      ${statBlock(s.streak, 'Current streak')}
-      ${statBlock(s.bestStreak, 'Best streak')}
-      ${statBlock(s.detections, 'Detection rules')}
+      ${stat(`${s.solved} / ${PUZZLES.length}`, 'Cases solved')}
+      ${stat(`${s.accuracy}%`, 'Accuracy')}
+      ${stat(s.streak, 'Current streak')}
+      ${stat(s.bestStreak, 'Best streak')}
     </div>
     <h2>Badges</h2>
     <ul class="badges">${badges}</ul>
-    <h2>Share your streak</h2>
-    <p class="muted small">Shows your last 7 days. It never reveals the answers.</p>
-    <div class="share">${esc(shareText())}</div>
-    <div class="actions"><button type="button" class="btn" data-action="copy-share">Copy share card</button></div>
   </section>`;
 }
 
 function viewNotes() {
-  const keys = Object.keys(state.notes).filter(k => (state.notes[k] || '').trim());
-  const items = keys.map(k => {
-    const c = findCase(k);
-    return `<article class="note">
-      <h3>${esc(c ? c.title : `Case ${k}`)}</h3>
-      <pre>${esc(state.notes[k])}</pre>
-      ${c ? `<button type="button" class="link" data-action="open-case" data-id="${esc(k)}">Open case</button>` : ''}
-    </article>`;
-  }).join('');
+  const withNotes = PUZZLES.filter(c => (state.notes[c.id] || '').trim());
+  const items = withNotes.map(c => `<article class="note">
+      <h3>${esc(c.title)}</h3>
+      <pre>${esc(state.notes[c.id])}</pre>
+      <button type="button" class="link" data-action="open-case" data-id="${c.id}">Open case</button>
+    </article>`).join('');
   return `<section class="card">
     <h1>Notes</h1>
     <p class="lead">Your notes for every case. Saved in this browser.</p>
-    <button type="button" class="btn" data-action="download-notes"${keys.length ? '' : ' disabled'}>Download notes (.txt)</button>
+    <button type="button" class="btn" data-action="download-notes"${withNotes.length ? '' : ' disabled'}>Download notes (.txt)</button>
     ${items || '<p class="muted">No notes yet. Add notes from any case.</p>'}
   </section>`;
 }
 
-function renderLogBody(c) {
-  const q = labState.q.trim().toLowerCase();
-  const visible = c.lines
-    .map((text, i) => ({ text, i }))
-    .filter(({ text }) => (!labState.source || sourceOf(text) === labState.source) && (!q || text.toLowerCase().includes(q)));
-  if (!visible.length) return '<p class="muted small">No lines match your search.</p>';
-  let timeline = '';
-  if (labState.timeline) {
-    const buckets = new Map();
-    visible.forEach(({ text }) => {
-      const minute = text.slice(0, 5);
-      buckets.set(minute, (buckets.get(minute) || 0) + 1);
-    });
-    const max = Math.max(...buckets.values());
-    timeline = `<div class="timeline" aria-label="Events per minute">${[...buckets].map(([m, n]) => `<div class="tl-row"><span>${esc(m)}</span><span class="tl-bar"><span style="width:${Math.round((n / max) * 100)}%"></span></span><span>${n}</span></div>`).join('')}</div>`;
-  }
-  const lines = visible.map(({ text, i }) => {
+function viewPlayer() {
+  const c = PUZZLES.find(x => x.id === player.id);
+  const note = state.notes[c.id] || '';
+  const lines = c.lines.map((text, i) => {
     let cls = 'line';
     if (player.submitted) {
       if (i === c.answer) cls += ' correct';
@@ -1391,89 +788,32 @@ function renderLogBody(c) {
     }
     return `<button type="button" class="${cls}" data-action="pick" data-line="${i}"${player.submitted ? ' disabled' : ''}><span class="ln">${i + 1}</span><span class="txt">${esc(text)}</span></button>`;
   }).join('');
-  return timeline + lines;
-}
-
-function viewPlayer() {
-  const c = findCase(player.key);
-  const key = player.key;
-  const solvedBefore = (state.results[key] || {}).correct > 0;
-  const hinted = !!state.hints[key];
-  const sources = [...new Set(c.lines.map(sourceOf))];
-  const sourceOptions = ['<option value="">All sources</option>', ...sources.map(s => `<option value="${esc(s)}"${labState.source === s ? ' selected' : ''}>${esc(s)}</option>`)].join('');
-
-  let body = '';
-  if (player.submitted) {
-    const ok = player.picked === c.answer;
-    const earned = state.points[key] && ok && !solvedBefore ? ` You earned ${state.points[key]} points.` : '';
-    body += ok
-      ? `<p class="result good"><strong>Correct.</strong> ${esc(c.explanation)}${earned}</p>`
-      : `<p class="result bad"><strong>Not quite.</strong> The turning point is line ${c.answer + 1}. ${esc(c.explanation)}</p>`;
-    body += `<h2>Analyst walkthrough</h2>
-      <ol class="walk">${c.walkthrough.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
-      <p class="small">ATT&amp;CK: <a href="${esc(attackUrl(c.attack))}" target="_blank" rel="noopener noreferrer">${esc(c.attack)} ${esc(c.attackName)}</a></p>`;
-    if (ok) body += detectionBuilder(c, key);
-  } else {
-    if (hinted && !solvedBefore) body += `<p class="hint"><strong>Hint:</strong> ${esc(c.hint)}</p>`;
-    body += '<p class="muted small">Tap the line that shows the turning point.</p>';
-  }
-
+  const result = !player.submitted ? '' : player.picked === c.answer
+    ? `<p class="result good"><strong>Correct.</strong> ${esc(c.explanation)}</p>`
+    : `<p class="result bad"><strong>Not quite.</strong> The turning point is line ${c.answer + 1}. ${esc(c.explanation)}</p>`;
   let actions = '';
   if (!player.submitted) {
-    actions += `<button type="button" class="btn primary" data-action="submit"${player.picked === null ? ' disabled' : ''}>Submit answer</button>`;
-    if (!solvedBefore && !hinted) actions += `<button type="button" class="btn" data-action="hint">Show hint (-${POINTS_HINT_PENALTY} points)</button>`;
+    actions = `<button type="button" class="btn primary" data-action="submit"${player.picked === null ? ' disabled' : ''}>Submit answer</button>`;
   } else if (!player.daily) {
-    actions += '<button type="button" class="btn" data-action="retry">Try again</button>';
+    actions = `<button type="button" class="btn" data-action="retry">Try again</button>`;
   }
-
-  const eyebrow = player.daily ? 'Today\'s case' : c.community ? 'Community case' : c.generated ? 'Random case' : 'Practice';
   return `<section class="card">
     <button type="button" class="link" data-action="close">← Back</button>
-    <p class="eyebrow">${esc(eyebrow)}</p>
+    <p class="eyebrow">${player.daily ? 'Today\'s case' : 'Practice'}</p>
     <h1>${esc(c.title)}</h1>
-    <div class="chips">${chips(c)}<span class="tag">${esc(c.attack)}</span></div>
+    <div class="chips">${chips(c)}</div>
     <p>${esc(c.scenario)}</p>
-    <div class="lab">
-      <input type="search" data-lab-search placeholder="Search the log" aria-label="Search the log" value="${esc(labState.q)}">
-      <select data-lab-source aria-label="Filter by event source">${sourceOptions}</select>
-      <button type="button" class="btn small" data-action="toggle-timeline" aria-pressed="${labState.timeline}">${labState.timeline ? 'Hide timeline' : 'Show timeline'}</button>
-    </div>
-    <div class="log" id="log-box" role="group" aria-label="Log lines">${renderLogBody(c)}</div>
-    ${body}
+    <div class="log" role="group" aria-label="Log lines">${lines}</div>
+    ${player.submitted ? result : '<p class="muted small">Tap the line that shows the turning point.</p>'}
     <div class="actions">${actions}</div>
     <h2>Your notes</h2>
-    <textarea data-note-id="${esc(key)}" maxlength="${NOTE_MAX}" placeholder="Write what you noticed. Saved in this browser." aria-label="Notes for this case">${esc(state.notes[key] || '')}</textarea>
-  </section>`;
-}
-
-function detectionBuilder(c, key) {
-  if (state.bonus[key]) {
-    return `<p class="result good">Detection rule saved: +${POINTS_DETECTION} points.</p>`;
-  }
-  const sources = [...new Set(c.lines.map(sourceOf))];
-  const test = detectDraft.result;
-  const verdict = test ? `<p class="${test.ok ? 'good' : 'bad'} small">${esc(test.reason)} Matches ${test.hits.length} line(s).</p>` : '';
-  return `<section class="detect">
-    <h2>Bonus: write a detection rule (+${POINTS_DETECTION} points)</h2>
-    <p class="small muted">Write the simplest rule that would have caught this attack: an event source, and text that appears in the attack line. The check passes if it finds the turning point and at most two other lines.</p>
-    <label class="field"><span>Event source</span>
-      <select data-detect-source><option value="">Choose a source</option>${sources.map(s => `<option value="${esc(s)}"${detectDraft.source === s ? ' selected' : ''}>${esc(s)}</option>`).join('')}</select>
-    </label>
-    <label class="field"><span>Text that must appear in the line (at least 3 characters)</span>
-      <input class="text-input" type="text" maxlength="80" data-detect-contains value="${esc(detectDraft.contains)}">
-    </label>
-    <div class="actions">
-      <button type="button" class="btn" data-action="test-detection">Test rule</button>
-      <button type="button" class="btn primary" data-action="save-detection">Save rule</button>
-    </div>
-    ${verdict}
+    <textarea data-note-id="${c.id}" maxlength="${NOTE_MAX}" placeholder="Write what you noticed. Saved in this browser." aria-label="Notes for this case">${esc(note)}</textarea>
   </section>`;
 }
 
 const VIEWS = {
   today: viewToday,
   practice: viewPractice,
-  classroom: viewClassroom,
   friends: viewFriends,
   team: viewTeam,
   progress: viewProgress,
@@ -1484,15 +824,10 @@ function render() {
   document.querySelectorAll('nav [data-view]').forEach(b => {
     b.classList.toggle('active', b.dataset.view === currentView);
   });
-  const message = flash ? `<p class="flash" role="status">${esc(flash)}</p>` : '';
-  flash = '';
-  if (player && !findCase(player.key)) player = null;
-  app.innerHTML = message + (player ? viewPlayer() : VIEWS[currentView]());
+  app.innerHTML = player ? viewPlayer() : VIEWS[currentView]();
 }
 
-// ---------- events ----------
-
-document.addEventListener('click', async e => {
+document.addEventListener('click', e => {
   const el = e.target.closest('[data-view], [data-action]');
   if (!el) return;
   if (el.dataset.view) {
@@ -1503,144 +838,28 @@ document.addEventListener('click', async e => {
     return;
   }
   switch (el.dataset.action) {
-    case 'open-case': openCase(el.dataset.id, el.dataset.daily === '1'); break;
+    case 'open-case': openCase(Number(el.dataset.id), el.dataset.daily === '1'); break;
     case 'pick': player.picked = Number(el.dataset.line); render(); break;
     case 'submit': submitAnswer(); break;
-    case 'retry': player.picked = null; player.submitted = false; detectDraft = { source: '', contains: '' }; render(); break;
+    case 'retry': player.picked = null; player.submitted = false; render(); break;
     case 'close': player = null; render(); break;
-    case 'hint':
-      state.hints[player.key] = true;
-      saveState();
-      render();
-      break;
-    case 'new-random':
-      openCase(`gen-${1 + Math.floor(Math.random() * 999999998)}`, false);
-      break;
-    case 'toggle-timeline':
-      labState.timeline = !labState.timeline;
-      render();
-      break;
-    case 'test-detection': {
-      detectDraft.result = checkDetection(findCase(player.key), detectDraft.source, detectDraft.contains);
-      render();
-      break;
-    }
-    case 'save-detection': {
-      const result = checkDetection(findCase(player.key), detectDraft.source, detectDraft.contains);
-      detectDraft.result = result;
-      if (result.ok) {
-        state.bonus[player.key] = true;
-        saveState();
-        note(`Detection rule saved: +${POINTS_DETECTION} points.`);
-      } else {
-        render();
-      }
-      break;
-    }
-    case 'copy-share':
-      note((await copyText(shareText())) ? 'Share card copied.' : 'Could not copy. Select the card text and copy it by hand.');
-      break;
     case 'download-notes': downloadNotes(); break;
-    case 'join-code': {
-      try {
-        const data = decodeCode(joinDraft);
-        if (typeof data.n !== 'string' || !Array.isArray(data.k) || !data.k.length || !data.k.every(k => KEY_RE.test(String(k)))) throw new Error('bad');
-        const code = joinDraft.trim();
-        state.assignments[code] = { name: data.n.slice(0, 60), keys: data.k.slice(0, 20).map(String) };
-        saveState();
-        joinDraft = '';
-        note(`Assignment "${state.assignments[code].name}" added.`);
-      } catch (err) {
-        note('That code is not valid. Check it and try again.');
-      }
-      break;
-    }
-    case 'start-assignment': {
-      const a = state.assignments[el.dataset.code];
-      if (!a) return;
-      const next = a.keys.find(k => !((state.results[k] || {}).correct > 0) && findCase(k)) || a.keys.find(k => findCase(k));
-      if (next) openCase(next, false);
-      else note('None of these cases are available yet.');
-      break;
-    }
-    case 'print-assignment': {
-      const a = state.assignments[el.dataset.code];
-      if (a) printKeys(a.keys, a.name);
-      break;
-    }
-    case 'remove-assignment':
-      delete state.assignments[el.dataset.code];
-      saveState();
-      render();
-      break;
-    case 'create-code': {
-      if (!teacherDraft.picks.length) return note('Pick at least one case first.');
-      const name = (teacherDraft.name.trim() || 'Untitled assignment').slice(0, 60);
-      createdCode = encodeCode({ n: name, k: teacherDraft.picks });
-      state.assignments[createdCode] = { name, keys: teacherDraft.picks.slice(0, 20) };
-      saveState();
-      render();
-      break;
-    }
-    case 'print-picks':
-      if (!teacherDraft.picks.length) return note('Pick at least one case first.');
-      printKeys(teacherDraft.picks, teacherDraft.name.trim() || 'LogHunt worksheet');
-      break;
-    case 'copy-code':
-      note((await copyText(createdCode)) ? 'Code copied.' : 'Could not copy. Select the code and copy it by hand.');
-      break;
   }
 });
 
 document.addEventListener('change', e => {
-  const t = e.target;
-  if (t.dataset.filter) {
-    if (!Object.prototype.hasOwnProperty.call(filters, t.dataset.filter)) return;
-    filters[t.dataset.filter] = t.value;
-    render();
-  } else if (t.dataset.labSource !== undefined) {
-    labState.source = t.value;
-    document.getElementById('log-box').innerHTML = renderLogBody(findCase(player.key));
-  } else if (t.dataset.detectSource !== undefined) {
-    detectDraft.source = t.value;
-    detectDraft.result = null;
-  } else if (t.dataset.pickCase !== undefined) {
-    const key = t.dataset.pickCase;
-    teacherDraft.picks = t.checked
-      ? [...new Set([...teacherDraft.picks, key])]
-      : teacherDraft.picks.filter(k => k !== key);
-  }
+  const name = e.target.dataset.filter;
+  if (!Object.prototype.hasOwnProperty.call(filters, name)) return;
+  filters[name] = e.target.value;
+  render();
 });
 
 document.addEventListener('input', e => {
-  const t = e.target;
-  if (t.dataset.noteId !== undefined) {
-    if (!KEY_RE.test(t.dataset.noteId)) return;
-    state.notes[t.dataset.noteId] = t.value.slice(0, NOTE_MAX);
-    saveState();
-  } else if (t.dataset.labSearch !== undefined) {
-    labState.q = t.value;
-    document.getElementById('log-box').innerHTML = renderLogBody(findCase(player.key));
-  } else if (t.dataset.detectContains !== undefined) {
-    detectDraft.contains = t.value;
-    detectDraft.result = null;
-  } else if (t.dataset.teacherName !== undefined) {
-    teacherDraft.name = t.value;
-  } else if (t.dataset.joinCode !== undefined) {
-    joinDraft = t.value;
-  }
+  const id = e.target.dataset.noteId;
+  if (!PUZZLES.some(c => String(c.id) === id)) return;
+  state.notes[id] = e.target.value.slice(0, NOTE_MAX);
+  saveState();
 });
-
-// ---------- start up ----------
-
-fetch('community/cases/index.json', { cache: 'no-cache' })
-  .then(res => (res.ok ? res.json() : []))
-  .then(list => {
-    if (!Array.isArray(list)) return;
-    communityCases = list.filter(isValidCommunityCase).map(c => ({ ...c, community: true }));
-    if (!player && (currentView === 'practice' || currentView === 'classroom')) render();
-  })
-  .catch(() => {});
 
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});

@@ -10,12 +10,12 @@ async function openPractice(page, index = 0) {
 }
 
 test('home offers the daily challenge', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   await expect(page.locator('button.primary').first()).toHaveText("Start today's challenge");
 });
 
 test('answering today\'s case records the day and starts a streak', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   await page.click('button.primary');
   await page.locator('.line').nth(0).click();
   await page.click('button[data-action="submit"]');
@@ -28,7 +28,7 @@ test('answering today\'s case records the day and starts a streak', async ({ pag
 });
 
 test('showing a hint lowers the points for a solved case', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   await openPractice(page, 0);
   await page.click('button[data-action="hint"]');
   await expect(page.locator('.hint')).toBeVisible();
@@ -40,7 +40,7 @@ test('showing a hint lowers the points for a solved case', async ({ page }) => {
 });
 
 test('the log search narrows the lines and keeps their numbers', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   await openPractice(page, 0);
   await expect(page.locator('#log-box .line')).toHaveCount(9);
   await page.fill('[data-lab-search]', 'h.ross');
@@ -51,7 +51,7 @@ test('the log search narrows the lines and keeps their numbers', async ({ page }
 });
 
 test('the event source filter and timeline work', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   await openPractice(page, 0);
   await page.selectOption('[data-lab-source]', 'Security 4625');
   await expect(page.locator('#log-box .line')).toHaveCount(6);
@@ -61,7 +61,7 @@ test('the event source filter and timeline work', async ({ page }) => {
 });
 
 test('a detection rule that misses the turning line is refused, and a good one earns points', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   await openPractice(page, 0);
   await page.locator('.line').nth(6).click();
   await page.click('button[data-action="submit"]');
@@ -79,7 +79,7 @@ test('a detection rule that misses the turning line is refused, and a good one e
 });
 
 test('the share card shows the streak and the last 7 days, but not the answers', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   await page.click('button.primary');
   await page.locator('.line').nth(0).click();
   await page.click('button[data-action="submit"]');
@@ -92,7 +92,7 @@ test('the share card shows the streak and the last 7 days, but not the answers',
 });
 
 test('generated random cases can be played', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   await page.click('nav [data-view="practice"]');
   await page.click('button[data-action="new-random"]');
   await expect(page.locator('.eyebrow')).toHaveText('Random case');
@@ -104,7 +104,7 @@ test('generated random cases can be played', async ({ page }) => {
 });
 
 test('a classroom code round-trips and a bad code is refused', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   await page.click('nav [data-view="classroom"]');
   await page.fill('[data-teacher-name]', 'Week 1');
   await page.check('[data-pick-case="1"]');
@@ -128,7 +128,7 @@ test('a classroom code round-trips and a bad code is refused', async ({ page }) 
 });
 
 test('a worksheet puts the answer key after the questions', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   await page.click('nav [data-view="classroom"]');
   await page.check('[data-pick-case="1"]');
   await page.evaluate(() => { window.print = () => {}; });
@@ -160,7 +160,7 @@ test('community cases load from the index and appear in practice', async ({ page
     walkthrough: ['One.', 'Two.']
   }];
   await page.route('**/community/cases/index.json', route => route.fulfill({ json: community }));
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   await page.click('nav [data-view="practice"]');
   await expect(page.getByText('Test community case')).toBeVisible();
   await page.getByText('Test community case').click();
@@ -168,7 +168,7 @@ test('community cases load from the index and appear in practice', async ({ page
 });
 
 test('corrupt saved data does not break the page or the object prototype', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   await page.evaluate(s => localStorage.setItem(s, '{"__proto__":{"polluted":1},"results":{"1":{"attempts":"x"}},"points":{"1":999}}'), STORE);
   await page.reload();
   await expect(page.locator('button.primary').first()).toBeVisible();
@@ -179,7 +179,7 @@ test('corrupt saved data does not break the page or the object prototype', async
 });
 
 test('outbound requests are blocked by the page policy', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   const outcome = await page.evaluate(async () => {
     try {
       await fetch('https://example.com/');
@@ -194,7 +194,7 @@ test('outbound requests are blocked by the page policy', async ({ page }) => {
 test('a typed note is shown as text and never runs', async ({ page }) => {
   const dialogs = [];
   page.on('dialog', d => { dialogs.push(d.message()); d.dismiss(); });
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   await openPractice(page, 1);
   await page.fill('textarea', '<img src=x onerror="window.__typed=1"><b>hi</b>');
   await page.click('nav [data-view="notes"]');
@@ -204,7 +204,7 @@ test('a typed note is shown as text and never runs', async ({ page }) => {
 });
 
 test('notes download as a text file', async ({ page }) => {
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   await openPractice(page, 0);
   await page.fill('textarea', 'Watch the 4624 after the 4625s.');
   await page.click('nav [data-view="notes"]');
@@ -217,13 +217,13 @@ test('notes download as a text file', async ({ page }) => {
 
 test('the app works at phone width without sideways scrolling', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 800 });
-  await page.goto('/index.html');
+  await page.goto('/preview/index.html');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await openPractice(page, 0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
-test('the app can be installed and works offline', async ({ page, request }) => {
+test('the main page can be installed and works offline', async ({ page, request }) => {
   const manifest = await (await request.get('/manifest.webmanifest')).json();
   expect(manifest.name).toBe('LogHunt');
   expect(manifest.display).toBe('standalone');
@@ -234,4 +234,38 @@ test('the app can be installed and works offline', async ({ page, request }) => 
     const reg = await navigator.serviceWorker.getRegistration();
     return !!(reg && reg.active);
   }, null, { timeout: 15000 });
+});
+
+// The main page keeps the original look. These tests stop it drifting again.
+test('the main page keeps the original six tabs and no classroom tab', async ({ page }) => {
+  await page.goto('/index.html');
+  await expect(page.locator('nav button')).toHaveText(['Today', 'Practice', 'Friends', 'Team', 'Progress', 'Notes']);
+  await expect(page.locator('button.primary').first()).toHaveText("Start today's challenge");
+});
+
+test('the main page answer flow still works', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.click('button.primary');
+  await page.locator('.line').nth(0).click();
+  await page.click('button[data-action="submit"]');
+  await expect(page.locator('.result')).toBeVisible();
+});
+
+test('the main page blocks outbound requests', async ({ page }) => {
+  await page.goto('/index.html');
+  const outcome = await page.evaluate(async () => {
+    try {
+      await fetch('https://example.com/');
+      return 'sent';
+    } catch (e) {
+      return 'blocked';
+    }
+  });
+  expect(outcome).toBe('blocked');
+});
+
+test('the main page fits a phone screen', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await page.goto('/index.html');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
