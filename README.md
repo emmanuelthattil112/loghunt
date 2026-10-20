@@ -63,4 +63,6 @@ npm test
 
 ## Live site
 
-Coming soon. This line will be replaced with the GitHub Pages address.
+**https://emmanuelthattil112.github.io/loghunt/**
+
+Preview with all the extra features: https://emmanuelthattil112.github.io/loghunt/preview/
