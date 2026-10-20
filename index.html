@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; font-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>LogHunt</title>
 <meta name="description" content="A daily cybersecurity puzzle. Read simulated Windows-style logs and find the line that shows the attack.">
 <style>
@@ -494,6 +496,7 @@ const TEAM = {
 
 const DAY_MS = 86400000;
 const STORE_KEY = 'loghunt.v1';
+const NOTE_MAX = 2000;
 const TOPICS = [...new Set(PUZZLES.map(c => c.topic))].sort();
 const app = document.getElementById('app');
 
@@ -506,14 +509,43 @@ function defaultState() {
   return { results: {}, daily: {}, notes: {}, streak: 0, bestStreak: 0, lastDaily: null };
 }
 
+// Rebuild the saved state from known fields only. Anything unexpected,
+// including a tampered or corrupt entry, is dropped instead of trusted.
 function loadState() {
+  const fresh = defaultState();
   try {
     const raw = localStorage.getItem(STORE_KEY);
-    if (raw) return Object.assign(defaultState(), JSON.parse(raw));
+    if (!raw) return fresh;
+    const saved = JSON.parse(raw);
+    if (!saved || typeof saved !== 'object') return fresh;
+
+    const caseById = new Map(PUZZLES.map(c => [String(c.id), c]));
+    const isCount = n => Number.isInteger(n) && n >= 0 && n <= 1000000;
+    const isDay = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
+
+    for (const [id, r] of Object.entries(saved.results || {})) {
+      if (caseById.has(id) && r && isCount(r.attempts) && isCount(r.correct) && r.correct <= r.attempts) {
+        fresh.results[id] = { attempts: r.attempts, correct: r.correct };
+      }
+    }
+    for (const [day, d] of Object.entries(saved.daily || {})) {
+      const c = d && caseById.get(String(d.caseId));
+      if (isDay(day) && c && typeof d.correct === 'boolean' && Number.isInteger(d.picked) && d.picked >= 0 && d.picked < c.lines.length) {
+        fresh.daily[day] = { caseId: c.id, picked: d.picked, correct: d.correct };
+      }
+    }
+    for (const [id, text] of Object.entries(saved.notes || {})) {
+      if (caseById.has(id) && typeof text === 'string') {
+        fresh.notes[id] = text.slice(0, NOTE_MAX);
+      }
+    }
+    if (isCount(saved.streak)) fresh.streak = saved.streak;
+    if (isCount(saved.bestStreak)) fresh.bestStreak = saved.bestStreak;
+    if (isDay(saved.lastDaily)) fresh.lastDaily = saved.lastDaily;
   } catch (e) {
     // Storage is blocked or the saved data is unreadable. Start fresh.
   }
-  return defaultState();
+  return fresh;
 }
 
 function saveState() {
@@ -583,6 +615,7 @@ function recordAttempt(c, picked, daily) {
 }
 
 function openCase(id, daily) {
+  if (!PUZZLES.some(c => c.id === id)) return;
   const done = daily ? state.daily[dateKey()] : null;
   if (done && done.caseId === id) {
     player = { id, daily: true, picked: done.picked, submitted: true };
@@ -616,7 +649,7 @@ function downloadNotes() {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-const chips = c => `<span class="chip">${esc(c.topic)}</span><span class="chip">${c.difficulty}</span><span class="chip sev-${c.severity}">${c.severity}</span>`;
+const chips = c => `<span class="chip">${esc(c.topic)}</span><span class="chip">${esc(c.difficulty)}</span><span class="chip sev-${esc(c.severity)}">${esc(c.severity)}</span>`;
 const stat = (value, label) => `<div class="stat"><span class="num">${value}</span><span class="lbl">${label}</span></div>`;
 const score = p => p.solved * 10 + p.bestStreak * 5;
 
@@ -771,7 +804,7 @@ function viewPlayer() {
     ${player.submitted ? result : '<p class="muted small">Tap the line that shows the turning point.</p>'}
     <div class="actions">${actions}</div>
     <h2>Your notes</h2>
-    <textarea data-note-id="${c.id}" placeholder="Write what you noticed. Saved in this browser." aria-label="Notes for this case">${esc(note)}</textarea>
+    <textarea data-note-id="${c.id}" maxlength="${NOTE_MAX}" placeholder="Write what you noticed. Saved in this browser." aria-label="Notes for this case">${esc(note)}</textarea>
   </section>`;
 }
 
@@ -813,15 +846,15 @@ document.addEventListener('click', e => {
 
 document.addEventListener('change', e => {
   const name = e.target.dataset.filter;
-  if (!name) return;
+  if (!Object.prototype.hasOwnProperty.call(filters, name)) return;
   filters[name] = e.target.value;
   render();
 });
 
 document.addEventListener('input', e => {
   const id = e.target.dataset.noteId;
-  if (!id) return;
-  state.notes[id] = e.target.value;
+  if (!PUZZLES.some(c => String(c.id) === id)) return;
+  state.notes[id] = e.target.value.slice(0, NOTE_MAX);
   saveState();
 });
 
