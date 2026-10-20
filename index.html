@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LogHunt</title>
+<meta name="description" content="A daily cybersecurity puzzle. Read simulated Windows-style logs and find the line that shows the attack.">
+<style>
+:root {
+  --bg: #0b1017;
+  --panel: #131b26;
+  --panel-2: #1a2535;
+  --border: #263449;
+  --text: #e6edf6;
+  --muted: #8a9bb3;
+  --accent: #4fb3ff;
+  --good: #3ddc97;
+  --bad: #ff6b6b;
+  --warn: #f5b942;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.5 var(--sans);
+  min-height: 100vh;
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header.top {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: rgba(11, 16, 23, 0.94);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand { font-weight: 800; font-size: 20px; letter-spacing: 0.02em; color: var(--accent); }
+nav { display: flex; flex-wrap: wrap; gap: 6px; }
+nav button {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+nav button:hover { background: var(--panel-2); }
+nav button.active { background: var(--accent); border-color: var(--accent); color: #06101a; font-weight: 700; }
+
+main { max-width: 880px; margin: 0 auto; padding: 20px 16px 24px; }
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+h1 { font-size: 26px; line-height: 1.2; margin: 4px 0 8px; }
+h2 { font-size: 19px; margin: 24px 0 10px; }
+h3 { font-size: 16px; margin: 0; }
+p { margin: 8px 0; }
+.lead { color: var(--muted); margin: 0 0 16px; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.eyebrow { color: var(--accent); font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; margin: 0; }
+.foot { max-width: 880px; margin: 0 auto; padding: 0 16px 32px; color: var(--muted); font-size: 13px; }
+
+.btn {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #06101a; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.link { background: none; border: none; color: var(--accent); cursor: pointer; padding: 0; font: inherit; }
+.actions { margin: 14px 0 4px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+.stats-row { display: flex; gap: 28px; margin: 18px 0; flex-wrap: wrap; }
+.num { display: block; font-size: 30px; font-weight: 800; line-height: 1.1; }
+.lbl { color: var(--muted); font-size: 13px; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+.chip {
+  font-size: 12px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.chip.sev-High { color: var(--warn); border-color: var(--warn); }
+.chip.sev-Critical { color: var(--bad); border-color: var(--bad); }
+
+.result { padding: 12px 14px; border-radius: 10px; margin: 14px 0; border: 1px solid; }
+.result.good { border-color: var(--good); background: rgba(61, 220, 151, 0.08); }
+.result.bad { border-color: var(--bad); background: rgba(255, 107, 107, 0.08); }
+
+.log {
+  font-family: var(--mono);
+  font-size: 13.5px;
+  background: #080c12;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px;
+  margin: 14px 0;
+}
+.line {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+  padding: 7px 8px;
+  cursor: pointer;
+  align-items: flex-start;
+}
+.line:hover:not(:disabled) { background: var(--panel-2); }
+.line.selected { border-color: var(--accent); background: var(--panel-2); }
+.line.correct { border-color: var(--good); background: rgba(61, 220, 151, 0.12); }
+.line.wrong { border-color: var(--bad); background: rgba(255, 107, 107, 0.12); }
+.line:disabled { cursor: default; }
+.ln { color: var(--muted); min-width: 22px; user-select: none; text-align: right; }
+.txt { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+
+textarea {
+  width: 100%;
+  min-height: 110px;
+  background: #080c12;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  font: inherit;
+  resize: vertical;
+}
+select {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  font: inherit;
+}
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 16px 0; }
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.field select { width: 100%; }
+
+.case-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.case-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 12px;
+  align-items: center;
+  text-align: left;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font: inherit;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.case-item:hover { border-color: var(--accent); }
+.ci-title { font-weight: 600; }
+.ci-meta { grid-column: 1; color: var(--muted); font-size: 13px; }
+.pill {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  font-size: 12px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.pill.good { color: var(--good); border-color: var(--good); }
+
+.grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 14px; }
+.stat { background: var(--panel-2); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; }
+.stat .num { font-size: 26px; }
+
+.badges { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.badge-card {
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  opacity: 0.55;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.badge-card.earned { opacity: 1; border-style: solid; border-color: var(--good); }
+
+.table-wrap { overflow-x: auto; }
+table.board { width: 100%; border-collapse: collapse; }
+table.board th, table.board td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--border); }
+table.board tr.me td { color: var(--accent); font-weight: 700; }
+
+.progress { height: 12px; background: var(--panel-2); border-radius: 999px; overflow: hidden; margin: 10px 0 4px; }
+.progress span { display: block; height: 100%; background: var(--accent); }
+.plain { list-style: none; padding: 0; margin: 8px 0; }
+.plain li { padding: 4px 0; }
+
+.note { border-top: 1px solid var(--border); padding: 12px 0; }
+.note pre { white-space: pre-wrap; font-family: var(--sans); margin: 6px 0; }
+
+@media (max-width: 560px) {
+  h1 { font-size: 22px; }
+  .num { font-size: 26px; }
+  .card { padding: 16px; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">LogHunt</div>
+  <nav aria-label="Main">
+    <button type="button" data-view="today">Today</button>
+    <button type="button" data-view="practice">Practice</button>
+    <button type="button" data-view="friends">Friends</button>
+    <button type="button" data-view="team">Team</button>
+    <button type="button" data-view="progress">Progress</button>
+    <button type="button" data-view="notes">Notes</button>
+  </nav>
+</header>
+<main id="app"></main>
+<footer class="foot">All logs are simulated for training. No real systems or people are involved.</footer>
+<script>
+const PUZZLES = [
+  {
+    id: 1,
+    title: 'Spray and Pray',
+    topic: 'Identity',
+    difficulty: 'Medium',
+    severity: 'High',
+    scenario: 'A help desk ticket says a user got a sign-in alert. Review the Windows Security log from the domain controller for the last hour.',
+    lines: [
+      `08:01:12 Security 4625 Failed logon. Account: a.morgan  Source IP: 10.0.8.41  Reason: Unknown user name or bad password.`,
+      `08:01:13 Security 4625 Failed logon. Account: j.kim  Source IP: 10.0.8.41  Reason: Unknown user name or bad password.`,
+      `08:01:15 Security 4625 Failed logon. Account: m.patel  Source IP: 10.0.8.41  Reason: Unknown user name or bad password.`,
+      `08:01:16 Security 4625 Failed logon. Account: r.lopez  Source IP: 10.0.8.41  Reason: Unknown user name or bad password.`,
+      `08:01:18 Security 4625 Failed logon. Account: s.okafor  Source IP: 10.0.8.41  Reason: Unknown user name or bad password.`,
+      `08:01:19 Security 4625 Failed logon. Account: t.nguyen  Source IP: 10.0.8.41  Reason: Unknown user name or bad password.`,
+      `08:01:24 Security 4624 Successful logon. Account: h.ross  Logon type: 3  Source IP: 10.0.8.41`,
+      `08:03:40 Security 4672 Special privileges assigned to new logon. Account: h.ross`,
+      `08:07:11 Printer Service: Driver installed on PRN-03.`
+    ],
+    answer: 6,
+    explanation: 'One source IP tried one password against many accounts (password spraying), and one of them worked. Reset that password, lock the account, and check what h.ross did next.'
+  },
+  {
+    id: 2,
+    title: 'Invoice Macro',
+    topic: 'Malware',
+    difficulty: 'Easy',
+    severity: 'High',
+    scenario: 'An employee says they opened an invoice attachment this morning. Review the endpoint telemetry from their laptop.',
+    lines: [
+      `09:12:40 Sysmon 1 Process create. Image: C:\\Program Files\\Microsoft Office\\OUTLOOK.EXE  ParentImage: explorer.exe`,
+      `09:12:48 Sysmon 1 Process create. Image: C:\\Program Files\\Microsoft Office\\WINWORD.EXE  ParentImage: OUTLOOK.EXE  CommandLine: WINWORD.EXE /n "C:\\Users\\kwilson\\AppData\\Local\\Temp\\Invoice_0931.docm"`,
+      `09:12:51 Sysmon 1 Process create. Image: powershell.exe  ParentImage: WINWORD.EXE  CommandLine: powershell -nop -w hidden -enc JABzAD0ATgBlAHcALQBPAGIAagBlAGMAdAA...`,
+      `09:12:53 Sysmon 3 Network connection. Image: powershell.exe  DestIP: 203.0.113.77  DestPort: 443`,
+      `09:13:10 Security 4688 Process create. NewProcess: notepad.exe  ParentProcess: explorer.exe`,
+      `09:13:35 Sysmon 11 File create. Image: powershell.exe  TargetFilename: C:\\Users\\kwilson\\AppData\\Roaming\\svc_update.exe`,
+      `09:20:02 Windows Update Client: Installed update KB5041585.`
+    ],
+    answer: 2,
+    explanation: 'Word opened a macro-enabled document from the Temp folder, then started PowerShell hidden with an encoded command. Office apps rarely start PowerShell on their own. Isolate the laptop and block the connection to 203.0.113.77.'
+  },
+  {
+    id: 3,
+    title: 'Fake Update Task',
+    topic: 'Persistence',
+    difficulty: 'Medium',
+    severity: 'Medium',
+    scenario: 'A server admin asks why a new scheduled task appeared on PRINT01 overnight. Review the task and logon events from the last 24 hours.',
+    lines: [
+      `22:14:02 Security 4624 Successful logon. Account: svc_print  Logon type: 5  Source: services.exe`,
+      `22:32:10 Print Service: Job 4411 completed on HP-LaserJet-3F.`,
+      `23:04:37 Security 4698 Scheduled task created. TaskName: \\Microsoft\\Windows\\UpdateCheck  Subject: svc_print  Command: C:\\ProgramData\\Intel\\upd.exe`,
+      `23:20:00 Windows Defender: Scan completed. No threats found.`,
+      `01:00:02 Print Service: Job 4412 completed on HP-LaserJet-3F.`
+    ],
+    answer: 2,
+    explanation: 'A task named to look like a Windows update runs a file from ProgramData, and a print service account created it. Print accounts should never create tasks. Disable the task, hash upd.exe, and check where svc_print logged on.'
+  },
+  {
+    id: 4,
+    title: 'Same Admin, Many Hosts',
+    topic: 'Lateral movement',
+    difficulty: 'Hard',
+    severity: 'High',
+    scenario: 'The SOC flagged a backup administrator account. Review the logons and service installs on the three hosts named in the alert.',
+    lines: [
+      `10:21:58 Security 4624 Successful logon. Account: adm_backup  Logon type: 3  Source IP: 10.0.2.15  Target: FS01`,
+      `10:22:14 Security 4624 Successful logon. Account: adm_backup  Logon type: 3  Source IP: 10.0.2.15  Target: HR-DB02`,
+      `10:22:19 System 7036 The Backup Agent service entered the running state.`,
+      `10:22:31 Security 4624 Successful logon. Account: adm_backup  Logon type: 3  Source IP: 10.0.2.15  Target: WS-114`,
+      `10:22:40 System 7045 A service was installed. Service Name: PSEXESVC  Image: %SystemRoot%\\PSEXESVC.exe  Account: adm_backup  Host: WS-114`,
+      `10:23:05 Sysmon 1 Process create. Image: C:\\Windows\\PSEXESVC.exe  ParentImage: services.exe  Host: WS-114`
+    ],
+    answer: 4,
+    explanation: 'PSEXESVC is a remote execution service, so this install means someone ran commands on WS-114 remotely. Together with three quick logons from the same IP, this looks like lateral movement, not backup work.'
+  },
+  {
+    id: 5,
+    title: 'Self-Promotion',
+    topic: 'Privilege escalation',
+    difficulty: 'Medium',
+    severity: 'High',
+    scenario: 'A helpdesk account opened a ticket about slow logons. Review the account and group membership changes on the domain controller.',
+    lines: [
+      `11:02:17 Security 4724 Password reset attempted. Subject: CORP\\helpdesk_t2  Target: CORP\\jlee`,
+      `11:02:18 Security 4738 User account changed. Target: CORP\\jlee  Subject: CORP\\helpdesk_t2`,
+      `11:30:44 Security 4624 Successful logon. Account: temp_helpdesk  Logon type: 2  Workstation: HD-07`,
+      `11:41:15 Security 4732 A member was added to a security-enabled local group. Member: CORP\\temp_helpdesk  Group: Administrators  Subject: CORP\\temp_helpdesk`,
+      `11:41:30 Security 4672 Special privileges assigned to new logon. Account: temp_helpdesk`,
+      `12:00:00 Windows Update Client: Installed update KB5041585.`
+    ],
+    answer: 3,
+    explanation: 'temp_helpdesk added itself to the local Administrators group. Helpdesk accounts do not change admin groups for themselves. Remove the membership and review everything this account did afterward.'
+  },
+  {
+    id: 6,
+    title: 'Memory Dump',
+    topic: 'Credential access',
+    difficulty: 'Hard',
+    severity: 'Critical',
+    scenario: 'EDR raised an alert on FIN-LAPTOP-22. Review the process activity from the 15 minutes before the alert.',
+    lines: [
+      `14:01:03 Sysmon 1 Process create. Image: C:\\Windows\\System32\\tasklist.exe  ParentImage: cmd.exe  CommandLine: tasklist /svc`,
+      `14:02:47 Sysmon 1 Process create. Image: C:\\Windows\\System32\\rundll32.exe  ParentImage: cmd.exe  CommandLine: rundll32.exe C:\\Windows\\System32\\comsvcs.dll, MiniDump 648 C:\\Temp\\d.bin full`,
+      `14:02:49 Sysmon 10 Process access. SourceImage: rundll32.exe  TargetImage: C:\\Windows\\System32\\lsass.exe  GrantedAccess: 0x1FFFFF`,
+      `14:03:10 Sysmon 11 File create. Image: rundll32.exe  TargetFilename: C:\\Temp\\d.bin  Size: 48 MB`,
+      `14:05:22 Sysmon 1 Process create. Image: C:\\Windows\\System32\\cmd.exe  ParentImage: explorer.exe  CommandLine: cmd.exe`,
+      `14:06:01 Windows Update Client: Installed update KB5041585.`
+    ],
+    answer: 1,
+    explanation: 'rundll32 calling the MiniDump export of comsvcs.dll to write lsass.exe memory to a file is a known credential-dumping method. The dump can expose password hashes. Treat the laptop as compromised and reset credentials used on it.'
+  },
+  {
+    id: 7,
+    title: 'Quiet Upload',
+    topic: 'Exfiltration',
+    difficulty: 'Medium',
+    severity: 'High',
+    scenario: 'Finance reports that FS01 slowed down yesterday afternoon. Review file access and process events for that time.',
+    lines: [
+      `16:02:11 Security 4663 File access. Account: CORP\\dmiller  Object: \\\\FS01\\Finance\\Payroll\\2026\\  Access: ReadData`,
+      `16:04:30 Security 4663 File access. Account: CORP\\dmiller  Object: \\\\FS01\\Finance\\Vendors\\  Access: ReadData`,
+      `16:21:37 Sysmon 1 Process create. Image: 7z.exe  ParentImage: cmd.exe  CommandLine: 7z.exe a C:\\Users\\Public\\fin_q3.7z \\\\FS01\\Finance\\*`,
+      `16:28:10 Sysmon 1 Process create. Image: rclone.exe  CommandLine: rclone copy C:\\Users\\Public\\fin_q3.7z remote:backup-7731`,
+      `16:40:00 Print Service: Job 9921 completed on FIN-PRN-02.`
+    ],
+    answer: 3,
+    explanation: 'Finance files were read, packed into one archive, then copied to an external cloud remote with rclone. Moving data to a storage target outside the company is exfiltration. Block the remote and check whether dmiller was allowed to move this data.'
+  },
+  {
+    id: 8,
+    title: 'Shadow Gone',
+    topic: 'Ransomware',
+    difficulty: 'Easy',
+    severity: 'Critical',
+    scenario: 'Sales staff report files that will not open. Review the endpoint events on SALES-PC-09 from the last hour.',
+    lines: [
+      `01:58:12 Sysmon 1 Process create. Image: C:\\Windows\\System32\\wbadmin.exe  CommandLine: wbadmin get versions`,
+      `02:14:00 Sysmon 1 Process create. Image: C:\\Windows\\System32\\vssadmin.exe  CommandLine: vssadmin.exe delete shadows /all /quiet`,
+      `02:14:22 Security 4688 Process create. NewProcess: bcdedit.exe  CommandLine: bcdedit /set {default} recoveryenabled No`,
+      `02:15:03 Sysmon 11 File create. TargetFilename: C:\\Users\\sbaker\\Documents\\README_RESTORE.txt`,
+      `02:16:40 Sysmon 11 File rename. TargetFilename: C:\\Shares\\Sales\\Q3_pipeline.xlsx.locked`,
+      `06:00:00 Windows Update Client: No updates installed.`
+    ],
+    answer: 1,
+    explanation: 'Deleting every shadow copy removes the easy way back, and attackers usually do it just before encryption. The ransom note and the .locked renames come after it. Isolate SALES-PC-09 from the network now.'
+  },
+  {
+    id: 9,
+    title: 'Avatar Upload',
+    topic: 'Web',
+    difficulty: 'Hard',
+    severity: 'High',
+    scenario: 'The web team noticed odd requests on the company site. Review the IIS and endpoint logs for the web server WEB02.',
+    lines: [
+      `12:29:50 IIS POST /profile/avatar.aspx  200  ClientIP: 198.51.100.23  Bytes: 1842`,
+      `12:30:12 IIS POST /profile/avatar.aspx  200  ClientIP: 198.51.100.23  Bytes: 1842`,
+      `12:31:18 IIS GET /images/cache/x.aspx?c=whoami  200  ClientIP: 198.51.100.23`,
+      `12:31:18 Sysmon 1 Process create. Image: C:\\Windows\\System32\\cmd.exe  ParentImage: w3wp.exe  CommandLine: cmd.exe /c whoami`,
+      `12:31:40 IIS GET /images/logo.png  200  ClientIP: 203.0.113.9`,
+      `12:32:04 IIS GET /images/cache/x.aspx?c=ipconfig /all  200  ClientIP: 198.51.100.23`
+    ],
+    answer: 3,
+    explanation: 'The IIS worker process w3wp.exe started a command shell, which a normal website never does. It ran whoami right after a request to an uploaded file in the cache folder. That is a web shell. Remove x.aspx, fix the upload handler, and review everything it ran.'
+  },
+  {
+    id: 10,
+    title: 'Quiet Defender',
+    topic: 'Defense evasion',
+    difficulty: 'Easy',
+    severity: 'Medium',
+    scenario: 'A laptop shows no antivirus alerts for two hours, but the user says nothing changed. Review the Defender and process logs.',
+    lines: [
+      `07:40:12 Windows Defender 5000 Real-time protection is enabled.`,
+      `07:55:03 Security 4688 Process create. NewProcess: reg.exe  Account: jsanchez  CommandLine: reg add "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f`,
+      `07:55:04 Windows Defender 5001 Real-time protection is disabled.`,
+      `08:00:00 Windows Update Client: Installed update KB5041585.`,
+      `08:12:31 Security 4624 Successful logon. Account: jsanchez  Logon type: 2  Workstation: FIN-LAPTOP-07`
+    ],
+    answer: 1,
+    explanation: 'A registry command turned off Defender through policy, and Defender then logged that real-time protection was disabled. Normal work does not do this. Turn protection back on, check the account for compromise, and find out how the command was started.'
+  },
+  {
+    id: 11,
+    title: 'Ticket Burst',
+    topic: 'Credential access',
+    difficulty: 'Hard',
+    severity: 'Medium',
+    scenario: 'A domain controller shows a burst of service ticket requests from one workstation. Review the Kerberos events for 15 minutes.',
+    lines: [
+      `09:11:02 Security 4769 Service ticket requested. Account: jmoore@CORP  Service: HTTP/intranet  Client: 10.0.5.21  Encryption: 0x12 (AES256)`,
+      `09:11:20 Security 4769 Service ticket requested. Account: rpatel@CORP  Service: CIFS/FS01  Client: 10.0.5.33  Encryption: 0x12 (AES256)`,
+      `09:14:55 Security 4769 Service ticket requested. Account: jbrown@CORP  Service: MSSQLSvc/SQL01  Client: 10.0.5.90  Encryption: 0x17 (RC4-HMAC)`,
+      `09:14:56 Security 4769 Service ticket requested. Account: jbrown@CORP  Service: HTTP/crm-app  Client: 10.0.5.90  Encryption: 0x17 (RC4-HMAC)`,
+      `09:14:58 Security 4769 Service ticket requested. Account: jbrown@CORP  Service: CIFS/backup01  Client: 10.0.5.90  Encryption: 0x17 (RC4-HMAC)`,
+      `09:25:00 Security 4769 Service ticket requested. Account: rpatel@CORP  Service: krbtgt/CORP  Client: 10.0.5.33  Encryption: 0x12 (AES256)`
+    ],
+    answer: 2,
+    explanation: 'One account requested tickets for several services within seconds, all downgraded to RC4 (0x17), from one workstation. Requests like this are the pattern of Kerberoasting. Reset the targeted service account passwords and check 10.0.5.90.'
+  },
+  {
+    id: 12,
+    title: 'Last Day',
+    topic: 'Insider',
+    difficulty: 'Medium',
+    severity: 'Medium',
+    scenario: 'HR logged a resignation notice for a team lead today. Review file and device activity from the last hour of their shift.',
+    lines: [
+      `17:02:00 HR system: Resignation notice recorded for nreyes. Last working day: today.`,
+      `17:40:12 Security 4663 File access. Account: CORP\\nreyes  Object: \\\\FS01\\HR\\Salaries_2026.xlsx  Access: ReadData`,
+      `17:42:03 Security 4663 File access. Account: CORP\\nreyes  Object: \\\\FS01\\HR\\Org_chart.pdf  Access: ReadData`,
+      `17:44:18 Security 4663 File access. Account: CORP\\nreyes  Object: \\\\FS01\\HR\\Benefits\\  Access: ReadData`,
+      `17:51:09 Print Service: Job 3317 (Salaries_2026.xlsx) printed to HR-PRN-01 by CORP\\nreyes.`,
+      `17:58:44 Kernel-PnP 6416 A new external device was recognized. Device: USB Mass Storage (Kingston DataTraveler)  User: CORP\\nreyes`,
+      `18:03:00 Windows Update Client: Installed update KB5041585.`
+    ],
+    answer: 5,
+    explanation: 'Salary and benefits files were read in bulk, then a new USB storage device was connected on the employee\'s last day. The device is where data could leave the building. It is not proof of theft, so escalate it through your HR and legal process before contacting the person.'
+  }
+];
+
+const BADGES = [
+  { name: 'First Hunt', desc: 'Solve your first case.', earned: s => s.solved >= 1 },
+  { name: 'Halfway There', desc: 'Solve 6 cases.', earned: s => s.solved >= 6 },
+  { name: 'Full Coverage', desc: 'Solve all 12 cases.', earned: s => s.solved >= PUZZLES.length },
+  { name: 'Three in a Row', desc: 'Finish the daily case 3 days in a row.', earned: s => s.bestStreak >= 3 },
+  { name: 'Clean Sweep', desc: 'Get 5 or more answers right with no misses.', earned: s => s.attempts >= 5 && s.correct === s.attempts }
+];
+
+const FRIENDS = [
+  { name: 'Ava K.', solved: 11, bestStreak: 9 },
+  { name: 'Marcus T.', solved: 9, bestStreak: 5 },
+  { name: 'Priya S.', solved: 7, bestStreak: 3 },
+  { name: 'Dev R.', solved: 4, bestStreak: 1 }
+];
+
+const TEAM = {
+  name: 'Blue Team Sprint',
+  goal: 12,
+  members: [
+    { name: 'Ava K.', solved: 4 },
+    { name: 'Marcus T.', solved: 3 },
+    { name: 'Priya S.', solved: 2 }
+  ]
+};
+
+const DAY_MS = 86400000;
+const STORE_KEY = 'loghunt.v1';
+const TOPICS = [...new Set(PUZZLES.map(c => c.topic))].sort();
+const app = document.getElementById('app');
+
+let state = loadState();
+let currentView = 'today';
+let player = null;
+let filters = { topic: 'All', difficulty: 'All', severity: 'All' };
+
+function defaultState() {
+  return { results: {}, daily: {}, notes: {}, streak: 0, bestStreak: 0, lastDaily: null };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return Object.assign(defaultState(), JSON.parse(raw));
+  } catch (e) {
+    // Storage is blocked or the saved data is unreadable. Start fresh.
+  }
+  return defaultState();
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+  } catch (e) {
+    // Storage is blocked. The app still works for this visit.
+  }
+}
+
+function esc(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
+function dateKey(d = new Date()) {
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
+function yesterdayKey() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return dateKey(d);
+}
+
+function dailyCase(key) {
+  const [y, m, d] = key.split('-').map(Number);
+  const days = Math.round((Date.UTC(y, m - 1, d) - Date.UTC(2026, 0, 1)) / DAY_MS);
+  return PUZZLES[((days % PUZZLES.length) + PUZZLES.length) % PUZZLES.length];
+}
+
+function currentStreak() {
+  const today = dateKey();
+  return state.lastDaily === today || state.lastDaily === yesterdayKey() ? state.streak : 0;
+}
+
+function getStats() {
+  const results = Object.values(state.results);
+  const attempts = results.reduce((sum, r) => sum + r.attempts, 0);
+  const correct = results.reduce((sum, r) => sum + r.correct, 0);
+  return {
+    solved: results.filter(r => r.correct > 0).length,
+    attempts,
+    correct,
+    accuracy: attempts ? Math.round((correct / attempts) * 100) : 0,
+    streak: currentStreak(),
+    bestStreak: state.bestStreak
+  };
+}
+
+function recordAttempt(c, picked, daily) {
+  const correct = picked === c.answer;
+  const r = state.results[c.id] || { attempts: 0, correct: 0 };
+  r.attempts += 1;
+  if (correct) r.correct += 1;
+  state.results[c.id] = r;
+
+  const key = dateKey();
+  if (daily && !state.daily[key]) {
+    state.daily[key] = { caseId: c.id, picked, correct };
+    state.streak = state.lastDaily === yesterdayKey() ? state.streak + 1 : 1;
+    state.lastDaily = key;
+    state.bestStreak = Math.max(state.bestStreak, state.streak);
+  }
+  saveState();
+}
+
+function openCase(id, daily) {
+  const done = daily ? state.daily[dateKey()] : null;
+  if (done && done.caseId === id) {
+    player = { id, daily: true, picked: done.picked, submitted: true };
+  } else {
+    player = { id, daily, picked: null, submitted: false };
+  }
+  render();
+  window.scrollTo(0, 0);
+}
+
+function submitAnswer() {
+  if (!player || player.submitted || player.picked === null) return;
+  const c = PUZZLES.find(x => x.id === player.id);
+  recordAttempt(c, player.picked, player.daily);
+  player.submitted = true;
+  render();
+}
+
+function downloadNotes() {
+  const sections = PUZZLES
+    .filter(c => (state.notes[c.id] || '').trim())
+    .map(c => `${c.title}\n${'-'.repeat(c.title.length)}\n${state.notes[c.id].trim()}\n`);
+  const blob = new Blob([`LogHunt notes\n\n${sections.join('\n')}`], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `loghunt-notes-${dateKey()}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+const chips = c => `<span class="chip">${esc(c.topic)}</span><span class="chip">${c.difficulty}</span><span class="chip sev-${c.severity}">${c.severity}</span>`;
+const stat = (value, label) => `<div class="stat"><span class="num">${value}</span><span class="lbl">${label}</span></div>`;
+const score = p => p.solved * 10 + p.bestStreak * 5;
+
+function viewToday() {
+  const key = dateKey();
+  const c = dailyCase(key);
+  const done = state.daily[key];
+  const s = getStats();
+  const status = done
+    ? `<p class="result ${done.correct ? 'good' : 'bad'}">Today's case is finished: ${done.correct ? 'you found the turning point.' : 'not this time. Read the explanation to learn the pattern.'} Come back tomorrow for the next case.</p>`
+    : `<p class="lead">Read the log, tap the line that shows the turning point, and submit. One case a day keeps your streak going.</p>`;
+  return `<section class="card">
+    <p class="eyebrow">${esc(new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }))}</p>
+    <h1>Today's case</h1>
+    ${status}
+    <div class="stats-row">
+      <div><span class="num">${s.streak}</span><span class="lbl">Day streak</span></div>
+      <div><span class="num">${s.solved} / ${PUZZLES.length}</span><span class="lbl">Cases solved</span></div>
+    </div>
+    <div class="chips"><span class="chip">${c.difficulty}</span></div>
+    <button type="button" class="btn primary" data-action="open-case" data-id="${c.id}" data-daily="1">${done ? 'Review today\'s case' : 'Start today\'s challenge'}</button>
+  </section>`;
+}
+
+function viewPractice() {
+  const f = filters;
+  const list = PUZZLES.filter(c =>
+    (f.topic === 'All' || c.topic === f.topic) &&
+    (f.difficulty === 'All' || c.difficulty === f.difficulty) &&
+    (f.severity === 'All' || c.severity === f.severity)
+  );
+  const select = (name, label, options) => `<label class="field"><span>${label}</span><select data-filter="${name}">${options.map(o => `<option value="${esc(o)}"${filters[name] === o ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></label>`;
+  const items = list.map(c => {
+    const r = state.results[c.id];
+    const solved = r && r.correct > 0;
+    return `<li><button type="button" class="case-item" data-action="open-case" data-id="${c.id}">
+      <span class="ci-title">${esc(c.title)}</span>
+      <span class="ci-meta">${esc(c.topic)} · ${c.difficulty} · ${c.severity}</span>
+      <span class="pill${solved ? ' good' : ''}">${solved ? 'Solved' : 'Not yet'}</span>
+    </button></li>`;
+  }).join('');
+  return `<section class="card">
+    <h1>Practice</h1>
+    <p class="lead">Replay any case. Practice does not change your daily streak.</p>
+    <div class="filters">
+      ${select('topic', 'Topic', ['All', ...TOPICS])}
+      ${select('difficulty', 'Difficulty', ['All', 'Easy', 'Medium', 'Hard'])}
+      ${select('severity', 'Severity', ['All', 'Low', 'Medium', 'High', 'Critical'])}
+    </div>
+    <p class="muted small">${list.length} of ${PUZZLES.length} cases</p>
+    <ul class="case-list">${items || '<li class="muted">No cases match these filters.</li>'}</ul>
+  </section>`;
+}
+
+function viewFriends() {
+  const s = getStats();
+  const rows = [...FRIENDS, { name: 'You', solved: s.solved, bestStreak: s.bestStreak, me: true }]
+    .sort((a, b) => score(b) - score(a))
+    .map((p, i) => `<tr class="${p.me ? 'me' : ''}"><td>${i + 1}</td><td>${esc(p.name)}</td><td>${p.solved}</td><td>${p.bestStreak}</td><td>${score(p)}</td></tr>`)
+    .join('');
+  return `<section class="card">
+    <p class="eyebrow">Demo</p>
+    <h1>Friends leaderboard</h1>
+    <p class="lead">Sample friends for now. The names are made up and the scores are not real.</p>
+    <div class="table-wrap"><table class="board">
+      <thead><tr><th>#</th><th>Player</th><th>Solved</th><th>Best streak</th><th>Score</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+    <p class="muted small">Score = solved × 10 + best streak × 5.</p>
+  </section>`;
+}
+
+function viewTeam() {
+  const s = getStats();
+  const total = Math.min(TEAM.goal, TEAM.members.reduce((n, m) => n + m.solved, 0) + s.solved);
+  const pct = Math.round((total / TEAM.goal) * 100);
+  const people = [...TEAM.members, { name: 'You', solved: s.solved }]
+    .map(m => `<li>${esc(m.name)}: ${m.solved} solved</li>`).join('');
+  return `<section class="card">
+    <p class="eyebrow">Demo</p>
+    <h1>${esc(TEAM.name)}</h1>
+    <p class="lead">Solve ${TEAM.goal} cases as one team. Sample team and progress only.</p>
+    <p><strong>${total} of ${TEAM.goal}</strong> cases solved this sprint</p>
+    <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><span style="width:${pct}%"></span></div>
+    <h2>Team members</h2>
+    <ul class="plain">${people}</ul>
+    <p class="muted small">Team challenges are a demo. Creating or joining teams is not available yet.</p>
+  </section>`;
+}
+
+function viewProgress() {
+  const s = getStats();
+  const badges = BADGES.map(b => `<li class="badge-card${b.earned(s) ? ' earned' : ''}"><strong>${b.name}</strong><span class="small">${b.desc}</span></li>`).join('');
+  return `<section class="card">
+    <h1>Progress</h1>
+    <p class="lead">Your results so far. Saved in this browser.</p>
+    <div class="grid-stats">
+      ${stat(`${s.solved} / ${PUZZLES.length}`, 'Cases solved')}
+      ${stat(`${s.accuracy}%`, 'Accuracy')}
+      ${stat(s.streak, 'Current streak')}
+      ${stat(s.bestStreak, 'Best streak')}
+    </div>
+    <h2>Badges</h2>
+    <ul class="badges">${badges}</ul>
+  </section>`;
+}
+
+function viewNotes() {
+  const withNotes = PUZZLES.filter(c => (state.notes[c.id] || '').trim());
+  const items = withNotes.map(c => `<article class="note">
+      <h3>${esc(c.title)}</h3>
+      <pre>${esc(state.notes[c.id])}</pre>
+      <button type="button" class="link" data-action="open-case" data-id="${c.id}">Open case</button>
+    </article>`).join('');
+  return `<section class="card">
+    <h1>Notes</h1>
+    <p class="lead">Your notes for every case. Saved in this browser.</p>
+    <button type="button" class="btn" data-action="download-notes"${withNotes.length ? '' : ' disabled'}>Download notes (.txt)</button>
+    ${items || '<p class="muted">No notes yet. Add notes from any case.</p>'}
+  </section>`;
+}
+
+function viewPlayer() {
+  const c = PUZZLES.find(x => x.id === player.id);
+  const note = state.notes[c.id] || '';
+  const lines = c.lines.map((text, i) => {
+    let cls = 'line';
+    if (player.submitted) {
+      if (i === c.answer) cls += ' correct';
+      else if (i === player.picked) cls += ' wrong';
+    } else if (i === player.picked) {
+      cls += ' selected';
+    }
+    return `<button type="button" class="${cls}" data-action="pick" data-line="${i}"${player.submitted ? ' disabled' : ''}><span class="ln">${i + 1}</span><span class="txt">${esc(text)}</span></button>`;
+  }).join('');
+  const result = !player.submitted ? '' : player.picked === c.answer
+    ? `<p class="result good"><strong>Correct.</strong> ${esc(c.explanation)}</p>`
+    : `<p class="result bad"><strong>Not quite.</strong> The turning point is line ${c.answer + 1}. ${esc(c.explanation)}</p>`;
+  let actions = '';
+  if (!player.submitted) {
+    actions = `<button type="button" class="btn primary" data-action="submit"${player.picked === null ? ' disabled' : ''}>Submit answer</button>`;
+  } else if (!player.daily) {
+    actions = `<button type="button" class="btn" data-action="retry">Try again</button>`;
+  }
+  return `<section class="card">
+    <button type="button" class="link" data-action="close">← Back</button>
+    <p class="eyebrow">${player.daily ? 'Today\'s case' : 'Practice'}</p>
+    <h1>${esc(c.title)}</h1>
+    <div class="chips">${chips(c)}</div>
+    <p>${esc(c.scenario)}</p>
+    <div class="log" role="group" aria-label="Log lines">${lines}</div>
+    ${player.submitted ? result : '<p class="muted small">Tap the line that shows the turning point.</p>'}
+    <div class="actions">${actions}</div>
+    <h2>Your notes</h2>
+    <textarea data-note-id="${c.id}" placeholder="Write what you noticed. Saved in this browser." aria-label="Notes for this case">${esc(note)}</textarea>
+  </section>`;
+}
+
+const VIEWS = {
+  today: viewToday,
+  practice: viewPractice,
+  friends: viewFriends,
+  team: viewTeam,
+  progress: viewProgress,
+  notes: viewNotes
+};
+
+function render() {
+  document.querySelectorAll('nav [data-view]').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === currentView);
+  });
+  app.innerHTML = player ? viewPlayer() : VIEWS[currentView]();
+}
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-view], [data-action]');
+  if (!el) return;
+  if (el.dataset.view) {
+    currentView = el.dataset.view;
+    player = null;
+    render();
+    window.scrollTo(0, 0);
+    return;
+  }
+  switch (el.dataset.action) {
+    case 'open-case': openCase(Number(el.dataset.id), el.dataset.daily === '1'); break;
+    case 'pick': player.picked = Number(el.dataset.line); render(); break;
+    case 'submit': submitAnswer(); break;
+    case 'retry': player.picked = null; player.submitted = false; render(); break;
+    case 'close': player = null; render(); break;
+    case 'download-notes': downloadNotes(); break;
+  }
+});
+
+document.addEventListener('change', e => {
+  const name = e.target.dataset.filter;
+  if (!name) return;
+  filters[name] = e.target.value;
+  render();
+});
+
+document.addEventListener('input', e => {
+  const id = e.target.dataset.noteId;
+  if (!id) return;
+  state.notes[id] = e.target.value;
+  saveState();
+});
+
+render();
+</script>
+</body>
+</html>
