@@ -34,7 +34,9 @@ All logs are simulated for training. No real systems or people are involved. Att
 
 ## Saving progress
 
-Progress (streak, points, notes, classroom assignments) is saved in the browser you use. It is not synced between devices yet.
+Progress (streak, points, notes, classroom assignments) is saved in the browser you use.
+
+**Accounts:** the login page lets each person on a device keep a separate profile. Accounts live in that browser only. Passwords are stored as salted PBKDF2 hashes, never as plain text. This is not a cloud login: there is no server, so accounts do not sync between devices, and anyone with access to the browser can try to guess a password. Use a password you don't use elsewhere. Real accounts that sync would need a hosted backend.
 
 ## Run it locally
 

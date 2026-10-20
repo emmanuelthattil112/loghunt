@@ -2,6 +2,13 @@ const { test, expect } = require('@playwright/test');
 
 const STORE = 'loghunt.v1';
 
+// Opens the main page and continues as a guest, past the login page.
+async function openMain(page) {
+  await page.goto('/index.html');
+  const guest = page.getByRole('button', { name: 'Play as a guest on this device' });
+  if (await guest.count()) await guest.click();
+}
+
 const readState = page => page.evaluate(s => JSON.parse(localStorage.getItem(s) || 'null'), STORE);
 
 async function openPractice(page, index = 0) {
@@ -236,15 +243,102 @@ test('the main page can be installed and works offline', async ({ page, request 
   }, null, { timeout: 15000 });
 });
 
+// The login page and accounts.
+test('a new visitor sees the login page and can play as a guest', async ({ page }) => {
+  await page.goto('/index.html');
+  await expect(page.getByRole('heading', { name: 'Log in to LogHunt' })).toBeVisible();
+  await page.click('button[data-action="guest"]');
+  await expect(page.locator('button.primary').first()).toContainText("Start today's challenge");
+});
+
+test('an account can be created, logged out of, and logged back into', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.click('[data-auth-mode="signup"]');
+  await page.fill('input[name="username"]', 'analyst_one');
+  await page.fill('input[name="password"]', 'correct horse 1');
+  await page.fill('input[name="confirm"]', 'correct horse 1');
+  await page.click('form[data-form="auth"] button[type="submit"]');
+  await expect(page.getByText('Account created. Welcome, analyst_one.')).toBeVisible();
+  await page.click('[data-view="account"]');
+  await expect(page.getByRole('heading', { name: 'Signed in as analyst_one' })).toBeVisible();
+  await page.click('button[data-action="logout"]');
+  await expect(page.getByRole('heading', { name: 'Log in to LogHunt' })).toBeVisible();
+  await page.fill('input[name="username"]', 'analyst_one');
+  await page.fill('input[name="password"]', 'not the password');
+  await page.click('form[data-form="auth"] button[type="submit"]');
+  await expect(page.locator('[data-auth-error]')).toHaveText('Wrong username or password.');
+  await page.fill('input[name="password"]', 'correct horse 1');
+  await page.click('form[data-form="auth"] button[type="submit"]');
+  await expect(page.getByText('Welcome back, analyst_one.')).toBeVisible();
+});
+
+test('passwords are stored only as a salted hash', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.click('[data-auth-mode="signup"]');
+  await page.fill('input[name="username"]', 'hash_check');
+  await page.fill('input[name="password"]', 'secret-passphrase');
+  await page.fill('input[name="confirm"]', 'secret-passphrase');
+  await page.click('form[data-form="auth"] button[type="submit"]');
+  await expect(page.getByText('Account created. Welcome, hash_check.')).toBeVisible();
+  const stored = await page.evaluate(() => localStorage.getItem('loghunt.accounts'));
+  expect(stored).not.toContain('secret-passphrase');
+  const account = JSON.parse(stored).hash_check;
+  expect(account.salt.length).toBeGreaterThan(10);
+  expect(account.hash.length).toBeGreaterThan(10);
+});
+
+test('each account keeps its own progress', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.click('[data-auth-mode="signup"]');
+  await page.fill('input[name="username"]', 'first_person');
+  await page.fill('input[name="password"]', 'password-one');
+  await page.fill('input[name="confirm"]', 'password-one');
+  await page.click('form[data-form="auth"] button[type="submit"]');
+  await expect(page.getByText('Account created. Welcome, first_person.')).toBeVisible();
+  await page.click('nav [data-view="practice"]');
+  await page.locator('.case-item').first().click();
+  await page.locator('.line').nth(6).click();
+  await page.click('button[data-action="submit"]');
+  await page.click('nav [data-view="progress"]');
+  await expect(page.locator('.stat .num').nth(0)).toHaveText('1');
+  await page.click('[data-view="account"]');
+  await page.click('button[data-action="logout"]');
+  await page.click('[data-auth-mode="signup"]');
+  await page.fill('input[name="username"]', 'second_person');
+  await page.fill('input[name="password"]', 'password-two');
+  await page.fill('input[name="confirm"]', 'password-two');
+  await page.click('form[data-form="auth"] button[type="submit"]');
+  await expect(page.getByText('Account created. Welcome, second_person.')).toBeVisible();
+  await page.click('nav [data-view="progress"]');
+  await expect(page.locator('.stat .num').nth(0)).toHaveText('0');
+});
+
+test('sign-up checks the username, password length, and confirmation', async ({ page }) => {
+  await page.goto('/index.html');
+  await page.click('[data-auth-mode="signup"]');
+  await page.fill('input[name="username"]', 'Bad Name!');
+  await page.fill('input[name="password"]', 'long enough pw');
+  await page.click('form[data-form="auth"] button[type="submit"]');
+  await expect(page.locator('[data-auth-error]')).toContainText('Use 3 to 20');
+  await page.fill('input[name="username"]', 'good_name');
+  await page.fill('input[name="password"]', 'short');
+  await page.click('form[data-form="auth"] button[type="submit"]');
+  await expect(page.locator('[data-auth-error]')).toContainText('at least 8 characters');
+  await page.fill('input[name="password"]', 'long enough pw');
+  await page.fill('input[name="confirm"]', 'different one');
+  await page.click('form[data-form="auth"] button[type="submit"]');
+  await expect(page.locator('[data-auth-error]')).toContainText('do not match');
+});
+
 // The main page: the four-tab design from the mockups.
 test('the main page shows four tabs and the daily challenge', async ({ page }) => {
-  await page.goto('/index.html');
+  await openMain(page);
   await expect(page.locator('nav button')).toHaveText(['Today', 'Practice', 'Friends', 'Progress']);
   await expect(page.locator('button.primary').first()).toContainText("Start today's challenge");
 });
 
 test('the main page answer flow still works', async ({ page }) => {
-  await page.goto('/index.html');
+  await openMain(page);
   await page.click('button.primary');
   await page.locator('.line').nth(0).click();
   await page.click('button[data-action="submit"]');
@@ -252,7 +346,7 @@ test('the main page answer flow still works', async ({ page }) => {
 });
 
 test('a correct theory adds the theory bonus to the points', async ({ page }) => {
-  await page.goto('/index.html');
+  await openMain(page);
   await page.click('nav [data-view="practice"]');
   await page.locator('.case-item').first().click();
   await page.click('[data-theory="Password guessing"]');
@@ -265,7 +359,7 @@ test('a correct theory adds the theory bonus to the points', async ({ page }) =>
 });
 
 test('a hint costs 10 points', async ({ page }) => {
-  await page.goto('/index.html');
+  await openMain(page);
   await page.click('nav [data-view="practice"]');
   await page.locator('.case-item').first().click();
   await page.click('button[data-action="hint"]');
@@ -276,7 +370,7 @@ test('a hint costs 10 points', async ({ page }) => {
 });
 
 test('the event categories and search narrow the log', async ({ page }) => {
-  await page.goto('/index.html');
+  await openMain(page);
   await page.click('nav [data-view="practice"]');
   await page.locator('.case-item').first().click();
   await page.click('button[data-cat="Logons"]');
@@ -289,14 +383,14 @@ test('the event categories and search narrow the log', async ({ page }) => {
 });
 
 test('the timer starts when a case opens', async ({ page }) => {
-  await page.goto('/index.html');
+  await openMain(page);
   await page.click('button.primary');
   await page.waitForTimeout(1200);
   await expect(page.locator('#timer')).not.toHaveText('00:00');
 });
 
 test('practice filters narrow the list, and a random case can be generated', async ({ page }) => {
-  await page.goto('/index.html');
+  await openMain(page);
   await page.click('nav [data-view="practice"]');
   await page.selectOption('select[data-filter="severity"]', 'Critical');
   await expect(page.locator('.case-item')).toHaveCount(2);
@@ -305,7 +399,7 @@ test('practice filters narrow the list, and a random case can be generated', asy
 });
 
 test('a classroom code can be created and a bad code is refused on the Friends page', async ({ page }) => {
-  await page.goto('/index.html');
+  await openMain(page);
   await page.click('nav [data-view="friends"]');
   await page.fill('[data-teacher-name]', 'Week 1');
   await page.check('[data-pick-case="1"]');
@@ -317,7 +411,7 @@ test('a classroom code can be created and a bad code is refused on the Friends p
 });
 
 test('notes can be searched, and reset asks before it clears', async ({ page }) => {
-  await page.goto('/index.html');
+  await openMain(page);
   await page.click('nav [data-view="practice"]');
   await page.locator('.case-item').first().click();
   await page.fill('textarea', 'Password spraying from one IP.');
@@ -336,7 +430,7 @@ test('notes can be searched, and reset asks before it clears', async ({ page }) 
 });
 
 test('the main page blocks outbound requests', async ({ page }) => {
-  await page.goto('/index.html');
+  await openMain(page);
   const outcome = await page.evaluate(async () => {
     try {
       await fetch('https://example.com/');
@@ -350,7 +444,7 @@ test('the main page blocks outbound requests', async ({ page }) => {
 
 test('the main page fits a phone screen', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/index.html');
+  await openMain(page);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   const tops = await page.locator('nav button').evaluateAll(els => new Set(els.map(e => Math.round(e.getBoundingClientRect().top))).size);
   expect(tops).toBe(1);

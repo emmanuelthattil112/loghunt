@@ -139,7 +139,7 @@ h3 { font-size: 16px; margin: 0 0 8px; font-weight: 700; }
 .puzzle-icon { width: 56px; height: 56px; border-radius: 14px; background: var(--panel-2); display: grid; place-items: center; color: var(--accent); margin: 14px 0; }
 .puzzle-title { font-size: 26px; font-weight: 800; line-height: 1.15; margin: 0 0 8px; }
 .field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--muted); font-weight: 600; margin: 16px 0; }
-select, input[type="search"], input[type="text"], textarea {
+select, input[type="search"], input[type="text"], input[type="password"], textarea {
   background: var(--panel-3);
   color: var(--text);
   border: 1px solid var(--border);
@@ -301,6 +301,17 @@ table.board tr.me td { color: var(--accent); font-weight: 700; }
 .notes-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
 .notes-head .field { margin: 0; min-width: 220px; }
 
+.auth { max-width: 520px; margin: 24px auto 0; }
+.auth h1 { font-size: clamp(28px, 5vw, 40px); }
+.auth form { margin-top: 18px; }
+.auth form .field { margin: 0 0 14px; }
+.auth-tabs { display: inline-flex; gap: 6px; background: var(--panel-3); border: 1px solid var(--border); border-radius: 999px; padding: 4px; margin: 14px 0 6px; }
+.auth-tabs button { background: transparent; border: 0; color: var(--muted); font: inherit; font-weight: 700; padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+.auth-tabs button.on { background: var(--accent); color: var(--accent-ink); }
+.auth-error { color: var(--bad); font-weight: 600; min-height: 1.5em; margin: 0 0 12px; }
+.auth-alt { margin-top: 18px; }
+button.avatar { cursor: pointer; padding: 0; color: var(--muted); }
+button.avatar:hover { color: var(--text); }
 .foot { max-width: 1120px; margin: 0 auto; padding: 0 18px 32px; color: var(--faint); font-size: 13px; }
 #print-area { display: none; }
 
@@ -348,7 +359,7 @@ table.board tr.me td { color: var(--accent); font-weight: 700; }
     <button type="button" data-view="friends">Friends</button>
     <button type="button" data-view="progress">Progress</button>
   </nav>
-  <span class="avatar" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></span>
+  <button type="button" class="avatar" data-view="account" aria-label="Account"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></button>
 </header>
 <main id="app"></main>
 <div id="print-area"></div>
@@ -690,6 +701,11 @@ const LEVEL_TO_DIFF = { Beginner: 'Easy', Analyst: 'Medium', Senior: 'Hard' };
 const SEVERITIES = ['Low', 'Medium', 'High', 'Critical'];
 const CATS = ['Logons', 'Processes', 'Files', 'Network', 'Changes', 'Other'];
 const KEY_RE = /^(\d{1,2}|gen-\d{1,10}|c-[a-z0-9-]{3,40})$/;
+const ACCOUNTS_KEY = 'loghunt.accounts';
+const SESSION_KEY = 'loghunt.session';
+const GUEST_FLAG = 'loghunt.guest';
+const PBKDF2_ITERATIONS = 210000;
+const USERNAME_RE = /^[a-z0-9_.]{3,20}$/;
 
 const DAY_MS = 86400000;
 const STORE_KEY = 'loghunt.v1';
@@ -1031,7 +1047,7 @@ function defaultState() {
 function loadState() {
   const fresh = defaultState();
   try {
-    const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+    const saved = JSON.parse(localStorage.getItem(storageKey()) || 'null');
     if (!saved || typeof saved !== 'object') return fresh;
     const dict = v => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
     const isCount = n => Number.isInteger(n) && n >= 0 && n <= 1000000;
@@ -1085,24 +1101,136 @@ function loadState() {
   } catch (e) {
     // Storage is blocked or the saved data is unreadable. Start fresh.
   }
+  if (!fresh.inviteCode) fresh.inviteCode = newInviteCode();
   return fresh;
 }
 
+// ---------- session ----------
+// Guests keep the original progress key. Each account has its own key.
+
+function storageKey() {
+  return session ? `${STORE_KEY}.${session}` : STORE_KEY;
+}
+
+function newInviteCode() {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const bytes = crypto.getRandomValues(new Uint8Array(4));
+  return 'LOGHUNT-' + Array.from(bytes, b => alphabet[b % alphabet.length]).join('');
+}
+
+try {
+  // Players who already used the app before accounts existed keep playing as a guest.
+  if (localStorage.getItem(GUEST_FLAG) === null && localStorage.getItem(STORE_KEY) !== null) {
+    localStorage.setItem(GUEST_FLAG, '1');
+  }
+} catch (e) {
+  // Storage is blocked. The app still runs.
+}
+
+let session = currentAccount();
+let guestChosen = localStorage.getItem(GUEST_FLAG) === '1';
 let state = loadState();
 
 function saveState() {
   try {
-    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    localStorage.setItem(storageKey(), JSON.stringify(state));
   } catch (e) {
     // Storage is blocked. The game still works for this visit.
   }
 }
 
-if (!state.inviteCode) {
-  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const bytes = crypto.getRandomValues(new Uint8Array(4));
-  state.inviteCode = 'LOGHUNT-' + Array.from(bytes, b => alphabet[b % alphabet.length]).join('');
-  saveState();
+// ---------- accounts on this device ----------
+// Accounts are kept in this browser only. Passwords are never stored, only a salted
+// PBKDF2 hash. Anyone with access to this browser can still try to guess a password,
+// so use a password you do not use anywhere else.
+
+let authMode = 'login';
+let authError = '';
+let authName = '';
+
+function loadAccounts() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || 'null');
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+    const clean = {};
+    for (const [name, a] of Object.entries(raw)) {
+      if (USERNAME_RE.test(name) && a && typeof a.salt === 'string' && typeof a.hash === 'string'
+        && a.salt.length <= 64 && a.hash.length <= 64 && a.iter === PBKDF2_ITERATIONS) {
+        clean[name] = { salt: a.salt, hash: a.hash, iter: a.iter, created: Number(a.created) || 0 };
+      }
+    }
+    return clean;
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveAccounts(accounts) {
+  try {
+    localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function currentAccount() {
+  const name = localStorage.getItem(SESSION_KEY);
+  return name && loadAccounts()[name] ? name : null;
+}
+
+const toBase64 = bytes => btoa(String.fromCharCode(...bytes));
+const fromBase64 = text => Uint8Array.from(atob(text), ch => ch.charCodeAt(0));
+
+async function derivePassword(password, salt) {
+  const material = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: PBKDF2_ITERATIONS, hash: 'SHA-256' }, material, 256);
+  return toBase64(new Uint8Array(bits));
+}
+
+async function createAccount(name, password) {
+  const accounts = loadAccounts();
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  accounts[name] = { salt: toBase64(salt), hash: await derivePassword(password, salt), iter: PBKDF2_ITERATIONS, created: Date.now() };
+  return saveAccounts(accounts);
+}
+
+async function passwordMatches(name, password) {
+  const account = loadAccounts()[name];
+  if (!account) return false;
+  return (await derivePassword(password, fromBase64(account.salt))) === account.hash;
+}
+
+function enterAccount(name) {
+  localStorage.setItem(SESSION_KEY, name);
+  session = name;
+  guestChosen = true;
+  localStorage.setItem(GUEST_FLAG, '1');
+  stopTimer();
+  player = null;
+  state = loadState();
+  currentView = 'today';
+}
+
+function leaveAccount() {
+  localStorage.removeItem(SESSION_KEY);
+  localStorage.setItem(GUEST_FLAG, '0');
+  session = null;
+  guestChosen = false;
+  stopTimer();
+  player = null;
+  state = loadState();
+  authMode = 'login';
+  authError = '';
+  currentView = 'login';
+}
+
+function chooseGuest() {
+  localStorage.setItem(GUEST_FLAG, '1');
+  guestChosen = true;
+  session = null;
+  state = loadState();
+  currentView = 'today';
 }
 
 // ---------- dates, streaks, stats ----------
@@ -1806,7 +1934,54 @@ function notesListHtml() {
     </article>`).join('') || `<p class="muted">${Object.keys(state.notes).length ? 'No notes match your search.' : 'No notes yet. Add notes from any case.'}</p>`;
 }
 
+function viewLogin() {
+  const signup = authMode === 'signup';
+  return `
+  <section class="card auth">
+    <p class="eyebrow">Your analyst profile</p>
+    <h1>${signup ? 'Create your account' : 'Log in to LogHunt'}</h1>
+    <p class="lead">Keep your streak, points and notes together. Accounts are saved in this browser.</p>
+    <div class="auth-tabs" role="group" aria-label="Log in or create an account">
+      <button type="button" data-auth-mode="login" class="${signup ? '' : 'on'}" aria-pressed="${!signup}">Log in</button>
+      <button type="button" data-auth-mode="signup" class="${signup ? 'on' : ''}" aria-pressed="${signup}">Create account</button>
+    </div>
+    <form data-form="auth" novalidate>
+      <label class="field"><span>Username</span><input name="username" type="text" autocomplete="username" maxlength="20" placeholder="e.g. analyst_one" value="${esc(authName)}"></label>
+      <label class="field"><span>Password</span><input name="password" type="password" autocomplete="${signup ? 'new-password' : 'current-password'}" maxlength="128" placeholder="At least 8 characters"></label>
+      ${signup ? '<label class="field"><span>Confirm password</span><input name="confirm" type="password" autocomplete="new-password" maxlength="128"></label>' : ''}
+      <p class="auth-error" data-auth-error role="alert">${esc(authError)}</p>
+      <button type="submit" class="btn primary">${signup ? 'Create account' : 'Log in'}</button>
+    </form>
+    <div class="auth-alt"><button type="button" class="link" data-action="guest">Play as a guest on this device</button></div>
+    <p class="faint small">Usernames are lowercase letters, numbers, dots or underscores. Passwords are stored only as salted hashes. Accounts are not synced between devices.</p>
+  </section>`;
+}
+
+function viewAccount() {
+  if (!session) {
+    return `
+    <section class="card auth">
+      <p class="eyebrow">Account</p>
+      <h1>You are playing as a guest</h1>
+      <p class="lead">Guest progress stays in this browser. Log in to keep a separate profile for each person who uses this device.</p>
+      <button type="button" class="btn primary" data-action="show-login">Log in or create an account</button>
+    </section>`;
+  }
+  return `
+  <section class="card auth">
+    <p class="eyebrow">Account</p>
+    <h1>Signed in as ${esc(session)}</h1>
+    <p class="lead">Your streak, points, notes and assignments are saved under this account in this browser.</p>
+    <div class="row">
+      <button type="button" class="btn" data-view="progress">See your progress</button>
+      <button type="button" class="btn danger" data-action="logout">Log out</button>
+    </div>
+  </section>`;
+}
+
 const VIEWS = {
+  login: viewLogin,
+  account: viewAccount,
   today: viewToday,
   practice: viewPractice,
   friends: viewFriends,
@@ -1814,6 +1989,11 @@ const VIEWS = {
 };
 
 function render() {
+  if (!session && !guestChosen) {
+    currentView = 'login';
+    player = null;
+    stopTimer();
+  }
   document.querySelectorAll('nav [data-view]').forEach(b => {
     b.classList.toggle('active', b.dataset.view === currentView);
   });
@@ -1828,7 +2008,7 @@ function render() {
 // ---------- events ----------
 
 document.addEventListener('click', async e => {
-  const el = e.target.closest('[data-view], [data-action], [data-cat]');
+  const el = e.target.closest('[data-view], [data-action], [data-cat], [data-auth-mode]');
   if (!el) return;
   if (el.dataset.view) {
     e.preventDefault();
@@ -1837,6 +2017,12 @@ document.addEventListener('click', async e => {
     stopTimer();
     render();
     window.scrollTo(0, 0);
+    return;
+  }
+  if (el.dataset.authMode !== undefined) {
+    authMode = el.dataset.authMode;
+    authError = '';
+    render();
     return;
   }
   if (el.dataset.cat !== undefined) {
@@ -1895,6 +2081,9 @@ document.addEventListener('click', async e => {
       note('Team challenges are a demo. Joining is not available yet.');
       break;
     case 'download-notes': downloadNotes(); break;
+    case 'guest': chooseGuest(); render(); break;
+    case 'show-login': currentView = 'login'; authError = ''; render(); break;
+    case 'logout': leaveAccount(); note('You are logged out.'); break;
     case 'reset':
       if (confirm('Reset your progress? This clears your streak, scores, and notes.')) {
         const invite = state.inviteCode;
@@ -2001,6 +2190,41 @@ document.addEventListener('input', e => {
   } else if (t.dataset.joinCode !== undefined) {
     joinDraft = t.value;
   }
+});
+
+document.addEventListener('submit', async e => {
+  const form = e.target;
+  if (form.dataset.form !== 'auth') return;
+  e.preventDefault();
+  const data = new FormData(form);
+  const name = String(data.get('username') || '').trim().toLowerCase();
+  const password = String(data.get('password') || '');
+  authName = name;
+  authError = '';
+  if (!USERNAME_RE.test(name)) {
+    authError = 'Use 3 to 20 letters, numbers, dots or underscores.';
+  } else if (password.length < 8 || password.length > 128) {
+    authError = 'Your password must be at least 8 characters.';
+  } else if (authMode === 'signup') {
+    if (loadAccounts()[name]) {
+      authError = 'That username is taken. Try another one.';
+    } else if (password !== String(data.get('confirm') || '')) {
+      authError = 'The two passwords do not match.';
+    } else if (!(await createAccount(name, password))) {
+      authError = 'Could not save your account. Check that this browser allows site storage.';
+    } else {
+      enterAccount(name);
+      note(`Account created. Welcome, ${name}.`);
+      return;
+    }
+  } else if (await passwordMatches(name, password)) {
+    enterAccount(name);
+    note(`Welcome back, ${name}.`);
+    return;
+  } else {
+    authError = 'Wrong username or password.';
+  }
+  render();
 });
 
 // ---------- start up ----------
