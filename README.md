@@ -19,8 +19,8 @@ A daily cybersecurity puzzle. Read simulated Windows-style logs and find the lin
 - **Endless practice:** generate new random cases from attack patterns.
 - **MITRE ATT&CK:** every case is tagged with its technique, with a link to the ATT&CK page.
 - **Log explorer:** search the log, filter by event source, and see events per minute on a timeline.
-- **Hints:** reveal a hint for 25 points.
-- **Points and detection rules:** solving a case earns 100 points (75 with a hint). Write a detection rule that catches the attack for 25 more.
+- **Hints:** reveal a hint for 10 points.
+- **Points and detection rules:** solving a case earns 100 points (90 with a hint). Write a detection rule that catches the attack for 25 more.
 - **Share card:** copy a card showing your last 7 days and streak. It never reveals the answers.
 - **Classroom:** teachers pick cases and share a code. Students paste the code to get the assignment. Print a worksheet with an answer key.
 - **Community cases:** anyone can add a case by pull request. See [CONTRIBUTING.md](CONTRIBUTING.md).

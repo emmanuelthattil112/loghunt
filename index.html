@@ -11,7 +11,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap">
 <title>LogHunt</title>
 <style>
 :root {
@@ -32,9 +32,12 @@
   --blue: #7cc4ff;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --display: Archivo, Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
+html { scroll-padding-top: 80px; }
+a { color: var(--accent); text-decoration: underline; }
 body {
   background: var(--bg);
   color: var(--text);
@@ -89,7 +92,7 @@ main { max-width: 1120px; margin: 0 auto; padding: 24px 18px 40px; }
 
 .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
 .eyebrow.muted { color: var(--faint); }
-h1 { font-size: clamp(32px, 6vw, 48px); line-height: 1.05; letter-spacing: -0.02em; margin: 6px 0 10px; font-weight: 900; }
+h1 { font-family: var(--display); font-size: clamp(32px, 6vw, 48px); line-height: 1.05; letter-spacing: -0.02em; margin: 6px 0 10px; font-weight: 900; }
 h2 { font-size: 20px; letter-spacing: -0.01em; margin: 0 0 12px; font-weight: 800; }
 h3 { font-size: 16px; margin: 0 0 8px; font-weight: 700; }
 .accent-text { color: var(--accent); }
@@ -137,7 +140,7 @@ h3 { font-size: 16px; margin: 0 0 8px; font-weight: 700; }
 .hero { padding: 14px 0 6px; }
 .hero h1 { margin-top: 2px; }
 .puzzle-icon { width: 56px; height: 56px; border-radius: 14px; background: var(--panel-2); display: grid; place-items: center; color: var(--accent); margin: 14px 0; }
-.puzzle-title { font-size: 26px; font-weight: 800; line-height: 1.15; margin: 0 0 8px; }
+.puzzle-title { font-family: var(--display); font-size: 26px; font-weight: 800; line-height: 1.15; margin: 0 0 8px; }
 .field { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--muted); font-weight: 600; margin: 16px 0; }
 select, input[type="search"], input[type="text"], input[type="password"], textarea {
   background: var(--panel-3);
@@ -152,7 +155,7 @@ select { cursor: pointer; }
 .search { width: 100%; margin: 14px 0; }
 .text-input { width: 100%; }
 textarea { width: 100%; min-height: 110px; resize: vertical; }
-.streak-num { font-size: 56px; font-weight: 900; letter-spacing: -0.03em; line-height: 1; margin: 6px 0; }
+.streak-num { font-family: var(--display); font-size: 56px; font-weight: 900; letter-spacing: -0.03em; line-height: 1; margin: 6px 0; }
 .streak-num span { font-size: 56px; }
 .streak-num small { font-size: 22px; font-weight: 800; margin-left: 6px; }
 .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 16px 0 8px; text-align: center; }
@@ -248,6 +251,7 @@ textarea { width: 100%; min-height: 110px; resize: vertical; }
 .how .small { margin: 0 0 12px; }
 .how .actions { display: grid; gap: 10px; margin-top: 12px; }
 .hint { border-left: 3px solid var(--warn); background: rgba(246, 196, 83, 0.08); padding: 10px 14px; border-radius: 10px; margin: 0 0 12px; }
+.result strong { font-family: var(--display); font-weight: 800; }
 .result { padding: 14px 16px; border-radius: 14px; margin: 16px 0; border: 1px solid; }
 .result.good { border-color: var(--good); background: rgba(74, 222, 154, 0.08); }
 .result.bad { border-color: var(--bad); background: rgba(255, 122, 122, 0.08); }
@@ -268,7 +272,7 @@ textarea { width: 100%; min-height: 110px; resize: vertical; }
 .b-sub { color: var(--faint); font-size: 13px; }
 .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .kpi { background: var(--panel-3); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
-.stat .num { display: block; font-size: 30px; font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; }
+.stat .num { font-family: var(--display); display: block; font-size: 30px; font-weight: 900; letter-spacing: -0.02em; line-height: 1.1; }
 .stat .lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); }
 .topic-row { margin: 16px 0; }
 .topic-head { display: flex; justify-content: space-between; font-weight: 700; font-size: 15px; }
@@ -312,7 +316,8 @@ table.board tr.me td { color: var(--accent); font-weight: 700; }
 .auth-alt { margin-top: 18px; }
 button.avatar { cursor: pointer; padding: 0; color: var(--muted); }
 button.avatar:hover { color: var(--text); }
-.foot { max-width: 1120px; margin: 0 auto; padding: 0 18px 32px; color: var(--faint); font-size: 13px; }
+.foot { max-width: 1120px; margin: 0 auto; padding: 0 18px 32px; color: var(--faint); font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
+.foot-fine { font-size: 12px; color: var(--faint); }
 #print-area { display: none; }
 
 @media (max-width: 560px) {
@@ -363,7 +368,7 @@ button.avatar:hover { color: var(--text); }
 </header>
 <main id="app"></main>
 <div id="print-area"></div>
-<footer class="foot">Simulated logs · Learn by investigating. All logs are simulated for training. No real systems or people are involved. ATT&amp;CK is a trademark of The MITRE Corporation.</footer>
+<footer class="foot"><span class="foot-main">Simulated logs · Learn by investigating</span><span class="foot-fine">All logs are simulated for training. No real systems or people are involved. ATT&amp;CK is a trademark of The MITRE Corporation.</span></footer>
 <script>
 const PUZZLES = [
   {
@@ -697,13 +702,11 @@ const PUZZLES = [
 const TOPICS = [...new Set(PUZZLES.map(c => c.topic))].sort();
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
 const LEVEL_NAME = { Easy: 'Beginner', Medium: 'Analyst', Hard: 'Senior' };
-const LEVEL_TO_DIFF = { Beginner: 'Easy', Analyst: 'Medium', Senior: 'Hard' };
 const SEVERITIES = ['Low', 'Medium', 'High', 'Critical'];
 const CATS = ['Logons', 'Processes', 'Files', 'Network', 'Changes', 'Other'];
 const KEY_RE = /^(\d{1,2}|gen-\d{1,10}|c-[a-z0-9-]{3,40})$/;
 const ACCOUNTS_KEY = 'loghunt.accounts';
 const SESSION_KEY = 'loghunt.session';
-const GUEST_FLAG = 'loghunt.guest';
 const PBKDF2_ITERATIONS = 210000;
 const USERNAME_RE = /^[a-z0-9_.]{3,20}$/;
 
@@ -1039,7 +1042,7 @@ function findCase(key) {
 function defaultState() {
   return {
     results: {}, daily: {}, notes: {}, points: {}, bonus: {}, hints: {}, theoryBonus: {}, history: [],
-    assignments: {}, streak: 0, bestStreak: 0, lastDaily: null, level: 'Beginner', inviteCode: ''
+    assignments: {}, streak: 0, bestStreak: 0, lastDaily: null, inviteCode: ''
   };
 }
 
@@ -1096,7 +1099,6 @@ function loadState() {
     if (isCount(saved.streak)) fresh.streak = saved.streak;
     if (isCount(saved.bestStreak)) fresh.bestStreak = saved.bestStreak;
     if (isDay(saved.lastDaily)) fresh.lastDaily = saved.lastDaily;
-    if (Object.prototype.hasOwnProperty.call(LEVEL_TO_DIFF, saved.level)) fresh.level = saved.level;
     if (typeof saved.inviteCode === 'string' && /^LOGHUNT-[A-Z0-9]{4}$/.test(saved.inviteCode)) fresh.inviteCode = saved.inviteCode;
   } catch (e) {
     // Storage is blocked or the saved data is unreadable. Start fresh.
@@ -1118,17 +1120,7 @@ function newInviteCode() {
   return 'LOGHUNT-' + Array.from(bytes, b => alphabet[b % alphabet.length]).join('');
 }
 
-try {
-  // Players who already used the app before accounts existed keep playing as a guest.
-  if (localStorage.getItem(GUEST_FLAG) === null && localStorage.getItem(STORE_KEY) !== null) {
-    localStorage.setItem(GUEST_FLAG, '1');
-  }
-} catch (e) {
-  // Storage is blocked. The app still runs.
-}
-
 let session = currentAccount();
-let guestChosen = localStorage.getItem(GUEST_FLAG) === '1';
 let state = loadState();
 
 function saveState() {
@@ -1204,8 +1196,6 @@ async function passwordMatches(name, password) {
 function enterAccount(name) {
   localStorage.setItem(SESSION_KEY, name);
   session = name;
-  guestChosen = true;
-  localStorage.setItem(GUEST_FLAG, '1');
   stopTimer();
   player = null;
   state = loadState();
@@ -1214,9 +1204,7 @@ function enterAccount(name) {
 
 function leaveAccount() {
   localStorage.removeItem(SESSION_KEY);
-  localStorage.setItem(GUEST_FLAG, '0');
   session = null;
-  guestChosen = false;
   stopTimer();
   player = null;
   state = loadState();
@@ -1226,8 +1214,6 @@ function leaveAccount() {
 }
 
 function chooseGuest() {
-  localStorage.setItem(GUEST_FLAG, '1');
-  guestChosen = true;
   session = null;
   state = loadState();
   currentView = 'today';
@@ -1518,10 +1504,8 @@ function weekRow() {
 }
 
 function queueCases() {
-  const want = LEVEL_TO_DIFF[state.level] || 'Easy';
-  const pool = allCases().filter(c => !c.generated && !(state.results[keyOf(c)] || {}).correct && c.difficulty === want);
-  const fallback = allCases().filter(c => !c.generated && !(state.results[keyOf(c)] || {}).correct && c.difficulty !== want);
-  return [...pool, ...fallback].slice(0, 3);
+  const today = keyOf(dailyCase(dateKey()));
+  return allCases().filter(c => !c.generated && keyOf(c) !== today && !(state.results[keyOf(c)] || {}).correct).slice(0, 3);
 }
 
 function viewToday() {
@@ -1529,7 +1513,6 @@ function viewToday() {
   const c = dailyCase(key);
   const done = state.daily[key];
   const s = getStats();
-  const levelOptions = Object.keys(LEVEL_TO_DIFF).map(l => `<option value="${esc(l)}"${state.level === l ? ' selected' : ''}>${esc(l)}</option>`).join('');
   const queue = queueCases().map(q => `<li>
       <div><div class="qt">${esc(q.title)}</div><div class="qm">${esc(levelOf(q))} · ${esc(q.topic)} · ${esc(q.severity)} severity</div></div>
       <button type="button" class="link" data-action="open-case" data-id="${esc(keyOf(q))}">Open →</button>
@@ -1542,11 +1525,10 @@ function viewToday() {
   </section>
   <div class="split">
     <section class="card accent">
-      <div class="row between"><span class="chip lv">Today's puzzle</span><span class="faint small">#${dayNumber(key)} · ~5 min</span></div>
+      <div class="row between"><span class="row"><span class="chip lv">Today's puzzle</span><span class="chip">${esc(levelOf(c))}</span></span><span class="faint small">#${dayNumber(key)} · ~5 min</span></div>
       <div class="puzzle-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></div>
       <h2 class="puzzle-title">${esc(c.title)}</h2>
       <p class="lead">${esc(c.scenario)}</p>
-      <label class="field"><span>Your level</span><select data-level>${levelOptions}</select></label>
       <button type="button" class="btn primary" data-action="open-case" data-id="${esc(keyOf(c))}" data-daily="1">${done ? 'Review today\'s case' : 'Start today\'s challenge'}</button>
       ${done ? `<p class="result ${done.correct ? 'good' : 'bad'}">${done.correct ? 'You found the turning point today.' : 'Not this time. Read the walkthrough to learn the pattern.'} Come back tomorrow for the next case.</p>` : ''}
     </section>
@@ -1560,7 +1542,7 @@ function viewToday() {
   </div>
   <section class="card" style="margin-top:16px">
     <div class="row between"><h2>More cases in the queue</h2><button type="button" class="link" data-view="practice">See all →</button></div>
-    <ul class="queue">${queue || '<li class="muted">You have solved every case in this level. Try another level in Practice.</li>'}</ul>
+    <ul class="queue">${queue || '<li class="muted">You have solved every case. Try a random case in Practice.</li>'}</ul>
   </section>
   <section class="card tip" style="margin-top:16px">
     <h3>Today's tip</h3>
@@ -1989,11 +1971,6 @@ const VIEWS = {
 };
 
 function render() {
-  if (!session && !guestChosen) {
-    currentView = 'login';
-    player = null;
-    stopTimer();
-  }
   document.querySelectorAll('nav [data-view]').forEach(b => {
     b.classList.toggle('active', b.dataset.view === currentView);
   });
@@ -2012,7 +1989,8 @@ document.addEventListener('click', async e => {
   if (!el) return;
   if (el.dataset.view) {
     e.preventDefault();
-    currentView = el.dataset.view;
+    // The header person icon opens the login page for guests, and the account page for signed-in players.
+    currentView = el.dataset.view === 'account' && !session ? 'login' : el.dataset.view;
     player = null;
     stopTimer();
     render();
@@ -2149,11 +2127,6 @@ document.addEventListener('change', e => {
   if (t.dataset.filter) {
     if (!Object.prototype.hasOwnProperty.call(filters, t.dataset.filter)) return;
     filters[t.dataset.filter] = t.value;
-    render();
-  } else if (t.dataset.level !== undefined) {
-    if (!Object.prototype.hasOwnProperty.call(LEVEL_TO_DIFF, t.value)) return;
-    state.level = t.value;
-    saveState();
     render();
   } else if (t.dataset.detectSource !== undefined) {
     detectDraft.source = t.value;

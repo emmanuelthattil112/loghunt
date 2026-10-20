@@ -2,11 +2,15 @@ const { test, expect } = require('@playwright/test');
 
 const STORE = 'loghunt.v1';
 
-// Opens the main page and continues as a guest, past the login page.
+// Opens the main page on the Today screen.
 async function openMain(page) {
   await page.goto('/index.html');
-  const guest = page.getByRole('button', { name: 'Play as a guest on this device' });
-  if (await guest.count()) await guest.click();
+}
+
+// Opens the login page from the header person icon.
+async function openLogin(page) {
+  await page.goto('/index.html');
+  await page.click('[data-view="account"]');
 }
 
 const readState = page => page.evaluate(s => JSON.parse(localStorage.getItem(s) || 'null'), STORE);
@@ -43,7 +47,7 @@ test('showing a hint lowers the points for a solved case', async ({ page }) => {
   await page.click('button[data-action="submit"]');
   await expect(page.locator('.result.good')).toBeVisible();
   const state = await readState(page);
-  expect(state.points['1']).toBe(75);
+  expect(state.points['1']).toBe(90);
 });
 
 test('the log search narrows the lines and keeps their numbers', async ({ page }) => {
@@ -244,15 +248,21 @@ test('the main page can be installed and works offline', async ({ page, request 
 });
 
 // The login page and accounts.
-test('a new visitor sees the login page and can play as a guest', async ({ page }) => {
+test('a new visitor lands on the Today screen, not the login page', async ({ page }) => {
   await page.goto('/index.html');
+  await expect(page.locator('button.primary').first()).toContainText("Start today's challenge");
+  await expect(page.getByRole('heading', { name: 'Log in to LogHunt' })).toHaveCount(0);
+});
+
+test('the header person icon opens login, and a guest can continue from it', async ({ page }) => {
+  await openLogin(page);
   await expect(page.getByRole('heading', { name: 'Log in to LogHunt' })).toBeVisible();
   await page.click('button[data-action="guest"]');
   await expect(page.locator('button.primary').first()).toContainText("Start today's challenge");
 });
 
 test('an account can be created, logged out of, and logged back into', async ({ page }) => {
-  await page.goto('/index.html');
+  await openLogin(page);
   await page.click('[data-auth-mode="signup"]');
   await page.fill('input[name="username"]', 'analyst_one');
   await page.fill('input[name="password"]', 'correct horse 1');
@@ -273,7 +283,7 @@ test('an account can be created, logged out of, and logged back into', async ({ 
 });
 
 test('passwords are stored only as a salted hash', async ({ page }) => {
-  await page.goto('/index.html');
+  await openLogin(page);
   await page.click('[data-auth-mode="signup"]');
   await page.fill('input[name="username"]', 'hash_check');
   await page.fill('input[name="password"]', 'secret-passphrase');
@@ -288,7 +298,7 @@ test('passwords are stored only as a salted hash', async ({ page }) => {
 });
 
 test('each account keeps its own progress', async ({ page }) => {
-  await page.goto('/index.html');
+  await openLogin(page);
   await page.click('[data-auth-mode="signup"]');
   await page.fill('input[name="username"]', 'first_person');
   await page.fill('input[name="password"]', 'password-one');
@@ -314,7 +324,7 @@ test('each account keeps its own progress', async ({ page }) => {
 });
 
 test('sign-up checks the username, password length, and confirmation', async ({ page }) => {
-  await page.goto('/index.html');
+  await openLogin(page);
   await page.click('[data-auth-mode="signup"]');
   await page.fill('input[name="username"]', 'Bad Name!');
   await page.fill('input[name="password"]', 'long enough pw');

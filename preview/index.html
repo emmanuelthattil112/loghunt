@@ -686,7 +686,7 @@ const DAY_MS = 86400000;
 const STORE_KEY = 'loghunt.v1';
 const NOTE_MAX = 2000;
 const POINTS_SOLVE = 100;
-const POINTS_HINT_PENALTY = 25;
+const POINTS_HINT_PENALTY = 10;
 const POINTS_DETECTION = 25;
 const EPOCH_KEY = '2026-01-01';
 
@@ -1302,7 +1302,7 @@ function viewFriends() {
       <thead><tr><th>#</th><th>Player</th><th>Solved</th><th>Points</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
-    <p class="muted small">Points: 100 per case solved (75 with a hint), plus 25 per detection rule.</p>
+    <p class="muted small">Points: 100 per case solved (90 with a hint), plus 25 per detection rule.</p>
   </section>`;
 }
 
