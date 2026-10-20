@@ -1,0 +1,14 @@
+{
+  "name": "loghunt",
+  "version": "2.0.0",
+  "private": true,
+  "description": "LogHunt: a daily puzzle where you read simulated Windows logs and find the line that shows the attack.",
+  "scripts": {
+    "test": "playwright test",
+    "community:build": "node scripts/validate-community.js",
+    "community:check": "node scripts/validate-community.js --check"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.47.2"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "LogHunt",
+  "short_name": "LogHunt",
+  "description": "A daily cybersecurity puzzle. Read simulated Windows-style logs and find the line that shows the attack.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1017",
+  "theme_color": "#0b1017",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "id": "c-your-case-name",
+  "title": "Short case title",
+  "topic": "Malware",
+  "difficulty": "Easy",
+  "severity": "High",
+  "scenario": "One or two sentences that tell the player what to look for and where.",
+  "lines": [
+    "09:00:00 Sysmon 1 Process create. Image: C:\\Windows\\System32\\example.exe  ParentImage: explorer.exe",
+    "09:00:10 Security 4624 Successful logon. Account: example.user  Logon type: 2",
+    "09:00:20 Sysmon 1 Process create. Image: C:\\Users\\example.user\\AppData\\Local\\Temp\\payload.exe  ParentImage: cmd.exe",
+    "09:00:30 Windows Update Client: Installed update KB5041585."
+  ],
+  "answer": 2,
+  "explanation": "Why the turning-point line matters, in plain language, and what to do next.",
+  "hint": "A short nudge that does not give the answer away.",
+  "attack": "T1204.002",
+  "attackName": "Malicious File",
+  "walkthrough": [
+    "First analyst step.",
+    "Second analyst step.",
+    "Containment or follow-up step."
+  ]
+}
